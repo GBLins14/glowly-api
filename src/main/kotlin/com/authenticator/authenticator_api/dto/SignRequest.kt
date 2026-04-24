@@ -1,7 +1,6 @@
 package com.authenticator.authenticator_api.dto
 
 import com.authenticator.authenticator_api.enums.Role
-import com.authenticator.authenticator_api.models.Store
 
 data class SignUpDto(
     val storeId: Long? = null,

@@ -1,7 +1,6 @@
 package com.authenticator.authenticator_api.dto
 
 import com.authenticator.authenticator_api.enums.AccountStatus
-import com.authenticator.authenticator_api.models.Store
 import com.authenticator.authenticator_api.models.User
 
 data class UserResponse(
