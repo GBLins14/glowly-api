@@ -94,7 +94,13 @@ class AuthService(
                 AccountStatus.PENDING,
                 Role.ADMIN,
                 "Conta registrada com sucesso, aguarde a liberação de outro admin."
-            )
+            ) else -> {
+                Triple(
+                    AccountStatus.APPROVED,
+                    null,
+                    "Conta registrada com sucesso."
+                )
+            }
         }
 
         val user = User(

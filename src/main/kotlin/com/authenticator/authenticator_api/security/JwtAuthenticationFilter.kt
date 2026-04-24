@@ -68,7 +68,7 @@ class JwtAuthenticationFilter(
             accountRepository.save(user)
         }
 
-        val authorities = listOf(SimpleGrantedAuthority("ROLE_${user.role.name.uppercase()}"))
+        val authorities = listOf(SimpleGrantedAuthority("ROLE_${user.role?.name?.uppercase()}"))
         val authentication = UsernamePasswordAuthenticationToken(
             CustomUserDetails(user),
             null,

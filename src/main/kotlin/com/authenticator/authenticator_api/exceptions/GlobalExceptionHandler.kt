@@ -2,6 +2,7 @@ package com.authenticator.authenticator_api.exceptions
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
+import org.springframework.security.core.AuthenticationException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
@@ -39,6 +40,13 @@ class UserGlobalExceptionHandler {
     fun handleConflict(e: ConflictException): ProblemDetail {
         val problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.message ?: "Conflito")
         problem.title = "Conflito"
+        return problem
+    }
+
+    @ExceptionHandler(AuthenticationException::class)
+    fun handleAuthenticationException(e: AuthenticationException): ProblemDetail {
+        val problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, e.message ?: "Autenticação falhou")
+        problem.title = "Autenticação falhou"
         return problem
     }
 }

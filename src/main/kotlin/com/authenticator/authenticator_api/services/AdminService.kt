@@ -36,8 +36,7 @@ class AdminService(
     }
 
     fun getAllAccounts(): List<UserResponse> =
-        accountRepository.findAll()?.map { it.toResponseDTO() }
-            ?: throw NotFoundException("Nenhuma conta encontrada.")
+        accountRepository.findAll().map { it.toResponseDTO() }
 
     fun getPendingAccounts(): List<UserResponse> {
         val accounts = accountRepository.findByAccountStatus(AccountStatus.PENDING)

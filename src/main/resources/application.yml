@@ -1,5 +1,8 @@
+server:
+  port: ${SERVER_PORT:8080}
+
 resend:
-  resend-api-key: ${RESEND_API_KEY:re_ADSASDASDASD}
+  resend-api-key: ${RESEND_API_KEY:ResendApiKeyNotSet}
 
 app:
   frontend-url: ${APP_FRONTEND_URL:http://localhost:3000}
@@ -19,21 +22,32 @@ app:
     token-expiration-minutes: ${APP_TOKEN_EXPIRATION_MINUTES:5}
 
 jwt:
-  jwt-secret: ${SPRING_JWT_SECRET:aB3cDeFgHiJkLmNoPqRsT9UvWxYz1234567890aBcDeFgHiJkLmNoPqRsT}
+  jwt-secret: ${SPRING_JWT_SECRET:LK2bwdDZStOYVk8Q6eiExRcTAcFezNYcomSiW2LZnQ4}
   jwt-expiration-days: ${SPRING_JWT_EXPIRATION_DAYS:7}
 
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://ep-tiny-cherry-ahbw81l4-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require}
-    username: ${SPRING_DATASOURCE_USERNAME:neondb_owner}
-    password: ${SPRING_DATASOURCE_PASSWORD:npg_Aq0zrZsgk7ha}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://sua_url_aqui
+    username: ${SPRING_DATASOURCE_USERNAME:seu_usuario_aqui}
+    password: ${SPRING_DATASOURCE_PASSWORD:sua_senha_aqui}
     driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.postgresql.Driver}
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: create-drop
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+        fetch_size: 50
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+    org.springframework.orm.jpa: DEBUG

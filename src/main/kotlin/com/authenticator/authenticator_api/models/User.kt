@@ -14,6 +14,13 @@ data class User(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id")
+    var store: Store? = null,
+
+    @Enumerated(EnumType.STRING)
+    var role: Role? = null,
+
     @Column(nullable = false, unique = true)
     val cpf: String,
 
@@ -34,10 +41,6 @@ data class User(
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    var role: Role = Role.USER,
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
     var accountStatus: AccountStatus,
 
     @Column(nullable = false)
@@ -54,7 +57,7 @@ data class User(
     var tokenVersion: Int = 0,
 
     @Column(nullable = false)
-    val createdAt: Instant = Instant.now(),
+    var createdAt: Instant = Instant.now(),
 
     var updatedAt: Instant = Instant.now()
 ) {
@@ -84,3 +87,5 @@ data class User(
         return "User(id=$id, username='$username', email='$email', role=$role)"
     }
 }
+
+

@@ -15,6 +15,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @EnableWebSecurity
 class SecurityConfig(
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
+    private val customAuthenticationEntryPoint: CustomAuthenticationEntryPoint,
     @Value("\${app.frontend-url}") private val FRONTEND_URL: String,
     @Value("\${app.swagger-url}") private val SWAGGER_URL: String
 ) {
@@ -30,6 +31,7 @@ class SecurityConfig(
                 it.anyRequest().authenticated()
             }
             .formLogin { it.disable() }
+            .exceptionHandling { it.authenticationEntryPoint(customAuthenticationEntryPoint) }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()

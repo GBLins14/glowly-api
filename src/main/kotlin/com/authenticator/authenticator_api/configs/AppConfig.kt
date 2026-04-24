@@ -1,5 +1,6 @@
 package com.authenticator.authenticator_api.configs
 
+import com.authenticator.authenticator_api.security.CurrentUserArgumentResolver
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -8,11 +9,14 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.method.HandlerTypePredicate
+import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
-class AppConfig : WebMvcConfigurer {
+class AppConfig(
+    private val currentUserArgumentResolver: CurrentUserArgumentResolver
+) : WebMvcConfigurer {
     @Bean
     fun objectMapper(): ObjectMapper {
         return ObjectMapper()
@@ -26,5 +30,9 @@ class AppConfig : WebMvcConfigurer {
             HandlerTypePredicate.forAnnotation(RestController::class.java)
                 .and(HandlerTypePredicate.forBasePackage("com.authenticator.authenticator_api"))
         )
+    }
+
+    override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
+        resolvers.add(currentUserArgumentResolver)
     }
 }
