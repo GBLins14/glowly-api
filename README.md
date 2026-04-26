@@ -1,272 +1,222 @@
-<!-- Substitui o README atual por uma versão no estilo fornecido pelo usuário, mas adaptada ao projeto de autenticação (authenticator-api) -->
-# 🔐 Authenticator API — Sistema de Autenticação e Gerenciamento de Usuários
+<!-- Glowly API — Backend SaaS de Gestão para o Nicho Beauty -->
+<p align="center">
+  <img src="https://readme-typing-svg.herokuapp.com?font=Inter&weight=600&size=28&pause=1000&color=C084FC&center=true&vCenter=true&width=435&lines=Glowly+%E2%9C%A8;Beleza+%2B+Tecnologia" alt="Glowly" />
+</p>
 
-![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
-![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=spring-security&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
+<p align="center">
+  <b>SaaS de agenda e gestão para salões de beleza, estéticas e profissionais do nicho beauty.</b><br>
+  <sub>Organize agendamentos, reduza faltas, automatize confirmações e potencialize seu faturamento.</sub>
+</p>
 
-> API leve e segura para autenticação, autorização e gerenciamento de usuários — ideal para integrar com aplicações web e mobile.
+<p align="center">
+  <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin" />
+  <img src="https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white" alt="Spring Boot" />
+  <img src="https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=spring-security&logoColor=white" alt="Spring Security" />
+  <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" alt="Swagger" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/status-em%20desenvolvimento-C084FC?style=flat-square" alt="Status" />
+  <img src="https://img.shields.io/badge/license-MIT-9cf?style=flat-square" alt="License" />
+</p>
 
 ---
 
-## 🎯 O Problema
-Muitas aplicações precisam de um serviço centralizado de autenticação: tokens seguros, gerenciamento de permissões, recuperação de senha e proteção contra ataques de força bruta. Implementar isso de forma consistente e segura pode ser custoso e sujeito a erros.
-
-## 💡 A Solução
-`authenticator-api` oferece um sistema pronto para autenticação stateless (JWT), gerenciamento de usuários/roles, recuperação de senha com e-mail e proteção contra abuso (rate limiting e lockout). Fácil de integrar via REST e documentado com OpenAPI/Swagger.
+> 🚧 **Este projeto está em desenvolvimento ativo.**  
+> A base de autenticação, autorização e gestão de lojas está consolidada. Os módulos de agenda, WhatsApp e relatórios estão no roadmap. Feedbacks e contribuições são bem-vindos!
 
 ---
 
-## 🔥 Principais funcionalidades
+## 💜 O que é o Glowly?
 
-### 🔐 Segurança & Autenticação
-- Tokens JWT assinados por `SPRING_JWT_SECRET`.
-- `tokenVersion` para invalidar tokens de forma controlada.
-- Proteção contra brute-force com lockout temporário (configurável via `application.yml`).
-- RBAC: roles configuráveis (ex.: `ADMIN`, `USER`, `SUPPORT`, etc.).
-- Senhas armazenadas com hashing seguro (BCrypt).
+O **Glowly** é uma plataforma SaaS completa pensada para transformar a gestão de negócios de beleza com tecnologia prática e eficiente.
 
-### 🧾 Gerenciamento de Usuários
-- CRUD de usuários e permissões.
-- Campos de perfil (nome, username, email, status, etc.).
-- Log de eventos (criação, atualização, desativação).
+Nosso objetivo é simples: **eliminar a bagunça de planilhas, cadernos e mensagens soltas no WhatsApp**, entregando uma experiência moderna de agendamento, controle de clientes e automação de comunicação.
 
-### 📧 Recuperação de Senha & Notificações
-- Tokens temporários de recuperação com expiração configurável.
-- Integração com provedores de e-mail (Resend) para envio de templates HTML.
+### Para quem é?
+- 💇‍♀️ Salões de beleza e cabeleireiros
+- 💆‍♀️ Clínicas de estética e spa
+- 💅 Manicures, depiladoras e profissionais autônomos
+- 🏢 Pequenas e médias empresas do nicho beauty
 
-### 🛡 Resiliência & Abuse Protection
-- Rate limiting (Bucket4j) e cache (Caffeine).
-- Bloqueio por tentativas excessivas (configurável).
-- Asynchronous email dispatch e background jobs quando aplicável.
+---
 
-### 📚 Documentação & Observabilidade
-- OpenAPI / Swagger UI (springdoc).
-- Logs e mensagens claras para debug.
+## ✨ Funcionalidades (MVP Atual)
+
+### 🔐 Autenticação & Segurança
+- Login com JWT stateless e controle de sessões via `tokenVersion`
+- Cadastro com validação de CPF, email e telefone
+- Recuperação de senha via email (Resend) com tokens temporários hasheados
+- Proteção contra brute-force (lockout temporário após tentativas excessivas)
+- Rate limiting inteligente por IP com proteção contra spoofing de proxy
+- RBAC: roles `ADMIN` e `USER` com hierarquia de permissões
+
+### 🏪 Gestão de Lojas (Base)
+- Cadastro e estrutura inicial de lojas vinculadas a contas de usuário
+- Arquitetura modular pronta para expansão
+
+### 📚 Documentação & DevEx
+- OpenAPI/Swagger UI integrado
+- Configuração via variáveis de ambiente
+- Docker e Docker Compose prontos para uso
+
+---
+
+## 🗺️ Roadmap
+
+| Fase | Módulo | Status |
+|:---|:---|:---|
+| **Fase 1** | Autenticação, autorização e gestão de contas | ✅ Concluído |
+| **Fase 1** | Gestão de lojas e estrutura base | 🔄 Em andamento |
+| **Fase 2** | Agenda online e calendário inteligente | 📋 Planejado |
+| **Fase 2** | Link de autoagendamento para clientes | 📋 Planejado |
+| **Fase 3** | Cadastro de clientes e histórico de atendimentos | 📋 Planejado |
+| **Fase 3** | Lembretes automáticos via WhatsApp | 📋 Planejado |
+| **Fase 4** | Relatórios de faturamento e produtividade | 📋 Planejado |
+| **Fase 4** | Painel administrativo e métricas | 📋 Planejado |
+| **Fase 5** | App mobile (React Native / Flutter) | 📋 Futuro |
 
 ---
 
 ## 🛠️ Stack Tecnológica
-- Kotlin 2.2.x
-- Spring Boot 4.0.x
-- Spring Security
-- Spring Data JPA (Hibernate)
-- PostgreSQL
-- JWT (jjwt)
-- springdoc-openapi (Swagger UI)
-- Bucket4j / Caffeine
-- Resend Java SDK
-- Gradle (wrapper)
-- Docker & docker-compose
+
+| Camada | Tecnologia |
+|:---|:---|
+| **Linguagem** | Kotlin 2.2.x |
+| **Framework** | Spring Boot 3.4.x |
+| **Segurança** | Spring Security + JWT (JJWT) |
+| **Banco de Dados** | PostgreSQL |
+| **ORM / Persistência** | Spring Data JPA (Hibernate) |
+| **Cache & Rate Limit** | Bucket4j + Caffeine |
+| **Email** | Resend Java SDK |
+| **Documentação** | springdoc-openapi (Swagger UI) |
+| **Build** | Gradle (wrapper) |
+| **Containerização** | Docker + Docker Compose |
+| **Java Runtime** | Eclipse Temurin 17 |
 
 ---
 
-## 🚀 Como rodar
+## 🚀 Como Rodar
 
 ### Pré-requisitos
 - Java 17+
-- Docker (recomendado para produção)
-- Gradle (use o wrapper `./gradlew`)
-- PostgreSQL (ou use Docker)
+- Docker (recomendado)
+- Gradle (ou use o wrapper `./gradlew`)
 
-### 1) Clone
+### 1) Clone o repositório
 ```bash
-git clone https://github.com/GBLins14/authenticator-api.git
-cd authenticator-api/auth
+git clone https://github.com/seu-usuario/glowly-api.git
+cd glowly-api
 ```
 
-### 2A) Rodar com Docker Compose (recomendado)
+### 2) Configure as variáveis de ambiente
+Crie um arquivo `.env` na raiz:
+```env
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/glowly_db
+SPRING_DATASOURCE_USERNAME=postgres
+SPRING_DATASOURCE_PASSWORD=postgres
+SPRING_JWT_SECRET=sua-chave-jwt-super-segura-com-pelo-menos-32-caracteres
+SPRING_JWT_EXPIRATION_DAYS=7
+APP_FRONTEND_URL=http://localhost:3000
+APP_SWAGGER_URL=http://localhost:8080
+RESEND_API_KEY=re_sua_chave_aqui
+```
+
+### 3A) Rodar com Docker Compose (recomendado)
 ```bash
-# Build e inicie containers
 docker compose build
 docker compose up -d
 
-# Verifique logs
+# Logs
 docker compose logs -f api
 
 # Parar
 docker compose down
 ```
 
-**Nota:** Docker Compose roda com banco local. Para produção, veja [Configuração em Produção](#-configuração-em-produção).
-
-### 2B) Rodar localmente (Gradle)
+### 3B) Rodar localmente com Gradle
 ```bash
-# Inicie PostgreSQL separadamente (Docker ou local)
+# Inicie o PostgreSQL
 docker run -d \
-  --name postgres \
+  --name glowly-postgres \
   -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=authenticator_db \
+  -e POSTGRES_DB=glowly_db \
   -p 5432:5432 \
   postgres:15-alpine
-
-# Configure variáveis de ambiente
-export SPRING_DATASOURCE_URL="jdbc:postgresql://localhost:5432/authenticator_db"
-export SPRING_DATASOURCE_USERNAME="postgres"
-export SPRING_DATASOURCE_PASSWORD="postgres"
-export SPRING_JWT_SECRET="aB3cDeFgHiJkLmNoPqRsT9UvWxYz1234567890aBcDeFgHiJkLmNoPqRsT"
-export SPRING_JWT_EXPIRATION_DAYS="7"
-export APP_FRONTEND_URL="http://localhost:3000"
-export APP_SWAGGER_URL="http://localhost:8080"
 
 # Rode a aplicação
 ./gradlew bootRun
 ```
 
-Acesse: http://localhost:8080/swagger-ui/index.html
+Acesse a documentação: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 
 ---
 
 ## ⚙️ Variáveis de Ambiente
 
-Todas as variáveis abaixo são **essenciais** e devem ser configuradas no seu ambiente de deploy. 
+### 🔑 Essenciais
 
-### 🔑 Essenciais (Sempre Requeridas)
+| Variável | Descrição | Padrão |
+|:---|:---|:---|
+| `SPRING_JWT_SECRET` | Segredo para assinar/validar JWTs (mín. 32 caracteres) | — |
+| `SPRING_JWT_EXPIRATION_DAYS` | Validade do token JWT em dias | `7` |
+| `SPRING_DATASOURCE_URL` | JDBC URL do PostgreSQL | — |
+| `SPRING_DATASOURCE_USERNAME` | Usuário do banco | — |
+| `SPRING_DATASOURCE_PASSWORD` | Senha do banco | — |
+| `SPRING_DATASOURCE_DRIVER` | Driver JDBC | `org.postgresql.Driver` |
 
-#### JWT (Autenticação)
-- `SPRING_JWT_SECRET` — segredo para assinar/validar JWTs (mín. 256 bits)
-- `SPRING_JWT_EXPIRATION_DAYS` — validade do token JWT em dias (ex: 7)
+### 🌐 Aplicação
 
-#### Banco de Dados (PostgreSQL)
-- `SPRING_DATASOURCE_URL` — JDBC URL (ex: `jdbc:postgresql://host:5432/dbname`)
-- `SPRING_DATASOURCE_USERNAME` — usuário do banco
-- `SPRING_DATASOURCE_PASSWORD` — senha do banco
-- `SPRING_DATASOURCE_DRIVER` — driver JDBC (padrão: `org.postgresql.Driver`)
+| Variável | Descrição | Padrão |
+|:---|:---|:---|
+| `APP_FRONTEND_URL` | URL do front-end (usada em emails) | `http://localhost:3000` |
+| `APP_SWAGGER_URL` | URL pública da API | `http://localhost:8080` |
+| `APP_TRUSTED_PROXIES` | IPs de reverse proxies confiáveis (separados por vírgula) | — |
 
-### 📧 Email & Notificações
-- `RESEND_API_KEY` — chave da API Resend para envio de e-mails
+### 📧 Notificações
 
-### 🌐 URLs da Aplicação
-- `APP_FRONTEND_URL` — URL do front-end (usada em links de e-mail, ex: `https://seu-app.com`)
-- `APP_SWAGGER_URL` — URL pública da documentação Swagger (ex: `https://api.seu-app.com`)
+| Variável | Descrição |
+|:---|:---|
+| `RESEND_API_KEY` | Chave da API Resend para envio de emails |
 
-### 🔒 Validações de Cadastro
-- `APP_MIN_FULLNAME_LENGTH` — mínimo de caracteres para nome completo (padrão: 7)
-- `APP_MIN_USERNAME_LENGTH` — mínimo de caracteres para username (padrão: 4)
-- `APP_MAX_USERNAME_LENGTH` — máximo de caracteres para username (padrão: 20)
-- `APP_MIN_PASSWORD_LENGTH` — mínimo de caracteres para senha (padrão: 6)
-- `APP_MAX_PASSWORD_LENGTH` — máximo de caracteres para senha (padrão: 30)
-- `APP_MAX_ATTEMPTS` — tentativas de login antes de lockout (padrão: 5)
-- `APP_LOCKOUT_MINUTES` — tempo de bloqueio em minutos (padrão: 5)
-- `APP_TOKEN_EXPIRATION_MINUTES` — expiração do token de recuperação de senha (padrão: 5)
-- `APP_MAX_REQUESTS_PER_MINUTES` — limite de requisições por minuto (padrão: 40)
+### 🔒 Segurança & Cadastro
+
+| Variável | Descrição | Padrão |
+|:---|:---|:---|
+| `APP_MIN_FULLNAME_LENGTH` | Mínimo de caracteres para nome completo | `7` |
+| `APP_MIN_USERNAME_LENGTH` | Mínimo de caracteres para username | `4` |
+| `APP_MAX_USERNAME_LENGTH` | Máximo de caracteres para username | `20` |
+| `APP_MIN_PASSWORD_LENGTH` | Mínimo de caracteres para senha | `6` |
+| `APP_MAX_PASSWORD_LENGTH` | Máximo de caracteres para senha | `30` |
+| `APP_MAX_ATTEMPTS` | Tentativas de login antes do lockout | `5` |
+| `APP_LOCKOUT_MINUTES` | Tempo de bloqueio em minutos | `5` |
+| `APP_TOKEN_EXPIRATION_MINUTES` | Expiração do token de recuperação de senha | `5` |
+| `APP_MAX_REQUESTS_PER_MINUTES` | Limite de requisições por minuto | `40` |
 
 ---
 
-## 📦 Configuração em Produção
-
-### 🚂 Railway
-
-1. **Crie um projeto no Railway**
-   ```
-   https://railway.app/dashboard
-   ```
-
-2. **Adicione PostgreSQL**
-   - Clique em "Add Service" → PostgreSQL
-   - Railway fornecerá: `DATABASE_URL`
-
-3. **Configure Variáveis de Ambiente**
-   No painel Railway, vá para "Variables" e adicione:
-   
-   ```
-   SPRING_DATASOURCE_URL=postgresql://user:password@host:5432/dbname
-   SPRING_DATASOURCE_USERNAME=seu_usuario
-   SPRING_DATASOURCE_PASSWORD=sua_senha
-   SPRING_DATASOURCE_DRIVER=org.postgresql.Driver
-   
-   SPRING_JWT_SECRET=aB3cDeFgHiJkLmNoPqRsT9UvWxYz1234567890aBcDeFgHiJkLmNoPqRsT
-   SPRING_JWT_EXPIRATION_DAYS=7
-   
-   APP_FRONTEND_URL=https://seu-frontend.railway.app
-   APP_SWAGGER_URL=https://seu-backend.railway.app
-   
-   RESEND_API_KEY=re_seu_api_key_aqui
-   
-   APP_MIN_FULLNAME_LENGTH=7
-   APP_MIN_USERNAME_LENGTH=4
-   APP_MAX_USERNAME_LENGTH=20
-   APP_MIN_PASSWORD_LENGTH=6
-   APP_MAX_PASSWORD_LENGTH=30
-   APP_MAX_ATTEMPTS=5
-   APP_LOCKOUT_MINUTES=5
-   APP_TOKEN_EXPIRATION_MINUTES=5
-   APP_MAX_REQUESTS_PER_MINUTES=40
-   ```
-
-4. **Deploy**
-   - Conecte seu repositório Git
-   - Railway faz build e deploy automaticamente
-
-### 🐳 Docker (Seu Servidor)
+## 🐳 Docker (Produção)
 
 ```bash
-# Faça login no Docker Registry
-docker login
-
 # Build
-docker build -t seu-usuario/authenticator-api .
+docker build -t seu-usuario/glowly-api .
 
 # Push
-docker push seu-usuario/authenticator-api
+docker push seu-usuario/glowly-api
 
-# Rode no servidor
+# Run
 docker run -d \
-  --name authenticator-api \
+  --name glowly-api \
   -p 8080:8080 \
-  -e SPRING_DATASOURCE_URL="jdbc:postgresql://seu-db:5432/authenticator_db" \
+  -e SPRING_DATASOURCE_URL="jdbc:postgresql://seu-db:5432/glowly_db" \
   -e SPRING_DATASOURCE_USERNAME="postgres" \
   -e SPRING_DATASOURCE_PASSWORD="sua-senha-segura" \
   -e SPRING_JWT_SECRET="sua-chave-jwt-segura" \
   -e RESEND_API_KEY="sua-api-key" \
-  seu-usuario/authenticator-api
-```
-
-### ☸️ Kubernetes
-
-```yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: authenticator-config
-data:
-  APP_FRONTEND_URL: "https://seu-app.com"
-  APP_SWAGGER_URL: "https://api.seu-app.com"
-  SPRING_DATASOURCE_DRIVER: "org.postgresql.Driver"
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: authenticator-secrets
-type: Opaque
-stringData:
-  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/authenticator_db"
-  SPRING_DATASOURCE_USERNAME: "postgres"
-  SPRING_DATASOURCE_PASSWORD: "sua-senha-segura"
-  SPRING_JWT_SECRET: "sua-chave-jwt-segura"
-  RESEND_API_KEY: "sua-api-key"
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: authenticator-api
-spec:
-  replicas: 2
-  template:
-    spec:
-      containers:
-      - name: api
-        image: seu-usuario/authenticator-api:latest
-        ports:
-        - containerPort: 8080
-        envFrom:
-        - configMapRef:
-            name: authenticator-config
-        - secretRef:
-            name: authenticator-secrets
+  -e APP_TRUSTED_PROXIES="10.0.0.1,10.0.0.2" \
+  seu-usuario/glowly-api
 ```
 
 ---
@@ -279,62 +229,87 @@ spec:
 
 ---
 
-## 🧭 Documentação (Swagger)
+## 🧭 Documentação da API
+
 - **OpenAPI JSON:** `/v3/api-docs`
 - **Swagger UI:** `/swagger-ui/index.html`
-
-Exemplo: `https://seu-api.com/swagger-ui/index.html`
 
 ---
 
 ## 🛠️ Debug & Problemas Comuns
 
 ### "Conexão recusada ao banco"
-- Verifique `SPRING_DATASOURCE_URL`
-- Garanta que PostgreSQL está rodando
-- Em Docker, use o nome do serviço como host
+- Verifique se `SPRING_DATASOURCE_URL` está correto
+- Confirme que o container PostgreSQL está rodando: `docker ps`
+- Em Docker Compose, o host do banco é `db` (nome do serviço)
 
-### "JWT inválido/expirado"
-- Verifique se `SPRING_JWT_SECRET` é igual em dev e prod
-- Secret deve ter mín. 256 bits
+### "JWT inválido ou expirado"
+- Verifique se `SPRING_JWT_SECRET` é idêntico entre ambiente de desenvolvimento e produção
+- A secret deve ter pelo menos 32 caracteres
 
-### "E-mail não enviado"
-- Verifique `RESEND_API_KEY`
-- Confirme que a chave é válida
+### "Email de recuperação não chega"
+- Confirme a `RESEND_API_KEY`
+- Verifique os logs da aplicação para detalhes de erro da API Resend
 
-### "Porta 8080 ocupada"
-- Mude `server.port` em `application-prod.yml`
-- Ou mate o processo: `kill -9 $(lsof -t -i:8080)`
+### "Rate limit bloqueando requisições legítimas"
+- Ajuste `APP_MAX_REQUESTS_PER_MINUTES` ou configure `APP_TRUSTED_PROXIES` corretamente
 
 ---
 
 ## 📝 Estrutura do Projeto
 
 ```
-auth/
+glowly-api/
 ├── src/
 │   ├── main/
-│   │   ├── kotlin/com/authenticator/authenticator_api/
-│   │   │   ├── controllers/      # Endpoints REST
-│   │   │   ├── services/         # Lógica de negócio
-│   │   │   ├── repositories/     # Data access
-│   │   │   ├── security/         # JWT, filters
-│   │   │   └── configs/          # Configurações
+│   │   ├── kotlin/com/glowly/
+│   │   │   ├── configs/              # Configurações do Spring
+│   │   │   ├── identity/             # Módulo de autenticação e usuários
+│   │   │   │   ├── controllers/      # Endpoints REST (Auth, Admin)
+│   │   │   │   ├── services/         # Lógica de negócio
+│   │   │   │   ├── repositories/     # Acesso a dados (JPA)
+│   │   │   │   ├── security/         # JWT, filtros, BCrypt
+│   │   │   │   ├── models/           # Entidades (User, PasswordResetToken)
+│   │   │   │   ├── dto/              # Data Transfer Objects
+│   │   │   │   ├── enums/            # Roles, AccountStatus
+│   │   │   │   └── exceptions/       # Handler global de exceções
+│   │   │   ├── stores/               # Módulo de gestão de lojas
+│   │   │   │   ├── controllers/
+│   │   │   │   ├── services/
+│   │   │   │   ├── repositories/
+│   │   │   │   ├── models/
+│   │   │   │   └── dto/
+│   │   │   └── GlowlyApiApplication.kt
 │   │   └── resources/
-│   │       ├── application.yml   # Config base
-│   │       ├── application-dev.yml
-│   │       └── application-prod.yml
-│   └── test/                     # Testes
-├── docker-compose.yml             # Dev/local
-├── Dockerfile                      # Produção
+│   │       ├── application.yml       # Configurações principais
+│   │       └── META-INF/spring/      # Auto-configurações
+│   └── test/                         # Testes unitários e de integração
+├── docker-compose.yml
+├── Dockerfile
+├── build.gradle.kts
 └── README.md
 ```
 
 ---
 
-## 📦 Licença
-MIT — ver arquivo `LICENSE`.
+## 🤝 Contribuição
+
+Este é um projeto em evolução. Sugestões, issues e pull requests são muito bem-vindos!
+
+1. Faça um fork do projeto
+2. Crie uma branch (`git checkout -b feature/nova-funcionalidade`)
+3. Commit suas mudanças (`git commit -m 'feat: adiciona nova funcionalidade'`)
+4. Push para a branch (`git push origin feature/nova-funcionalidade`)
+5. Abra um Pull Request
 
 ---
 
-<p align="center"><sub>Desenvolvido por Gabriel Lins</sub></p>
+## 📄 Licença
+
+Distribuído sob licença MIT. Veja o arquivo [`LICENSE`](LICENSE) para mais informações.
+
+---
+
+<p align="center">
+  <sub>Feito com 💜 por <strong>Gabriel Lins</strong></sub>
+</p>
