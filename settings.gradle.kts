@@ -1,1 +1,1 @@
-rootProject.name = "authenticator-api"
+rootProject.name = "glowly-api"

@@ -27,9 +27,9 @@ jwt:
 
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://sua_url_aqui
-    username: ${SPRING_DATASOURCE_USERNAME:seu_usuario_aqui}
-    password: ${SPRING_DATASOURCE_PASSWORD:sua_senha_aqui}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://ep-noisy-cake-ac22eih5-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require}
+    username: ${SPRING_DATASOURCE_USERNAME:neondb_owner}
+    password: ${SPRING_DATASOURCE_PASSWORD:npg_4Nu8gpEdrQjy}
     driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.postgresql.Driver}
 
   jpa:

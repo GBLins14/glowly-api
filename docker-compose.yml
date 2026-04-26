@@ -1,10 +1,10 @@
 services:
   db:
     image: postgres:15-alpine
-    container_name: authenticator-postgres
+    container_name: glowly-postgres
     restart: always
     environment:
-      POSTGRES_DB: authenticator_db
+      POSTGRES_DB: glowly_db
       POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME}
       POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
     volumes:
@@ -12,22 +12,22 @@ services:
     ports:
       - "127.0.0.1:5432:5432"
     networks:
-      - authenticator-network
+      - glowly-network
 
   api:
     build: .
-    container_name: authenticator-backend
+    container_name: glowly-backend
     restart: always
     ports:
       - "8080:8080"
     depends_on:
       - db
     networks:
-      - authenticator-network
+      - glowly-network
 
 volumes:
   postgres_data:
 
 networks:
-  authenticator-network:
+  glowly-network:
 
