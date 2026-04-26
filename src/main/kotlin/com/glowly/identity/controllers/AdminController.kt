@@ -8,6 +8,8 @@ import com.glowly.identity.enums.Role
 import com.glowly.identity.extensions.success
 import com.glowly.identity.models.User
 import com.glowly.identity.services.AdminService
+import com.glowly.identity.utils.MessageConstants
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import kotlin.enums.EnumEntries
@@ -32,7 +34,7 @@ class AdminController(
     @PatchMapping("/accounts/approve/{accountId}")
     fun approveAccount(@PathVariable accountId: Long): ResponseEntity<Any> {
         adminService.approveAccount(accountId)
-        return ResponseEntity.ok().success("Conta aprovada com sucesso! O usuário já pode fazer login.")
+        return ResponseEntity.ok().success(MessageConstants.Success.ACCOUNT_APPROVED)
     }
 
     @GetMapping("/accounts/{login}")
@@ -48,21 +50,21 @@ class AdminController(
     }
 
     @PatchMapping("/accounts/role")
-    fun setRole(@RequestBody request: SetRoleDto, @CurrentUser user: User): ResponseEntity<Any> {
+    fun setRole(@Valid @RequestBody request: SetRoleDto, @CurrentUser user: User): ResponseEntity<Any> {
         adminService.updateRole(request, user)
-        return ResponseEntity.ok().success("Cargo atualizado com sucesso!")
+        return ResponseEntity.ok().success(MessageConstants.Success.ROLE_UPDATED)
     }
 
     @PatchMapping("/accounts/ban")
-    fun banAccount(@RequestBody request: BanDto, @CurrentUser user: User): ResponseEntity<Any> {
+    fun banAccount(@Valid @RequestBody request: BanDto, @CurrentUser user: User): ResponseEntity<Any> {
         adminService.banAccount(request, user)
-        return ResponseEntity.ok().success("Conta bloqueada com sucesso.")
+        return ResponseEntity.ok().success(MessageConstants.Success.ACCOUNT_BANNED)
     }
 
     @PatchMapping("/accounts/unban/{accountId}")
     fun unbanAccount(@PathVariable accountId: Long): ResponseEntity<Any> {
         adminService.unbanAccount(accountId)
-        return ResponseEntity.ok().success("Conta desbloqueada com sucesso.")
+        return ResponseEntity.ok().success(MessageConstants.Success.ACCOUNT_UNBANNED)
     }
 
     @GetMapping("/accounts/bans")
@@ -74,6 +76,6 @@ class AdminController(
     @DeleteMapping("/accounts/{accountId}")
     fun delAccount(@PathVariable accountId: Long, @CurrentUser user: User): ResponseEntity<Any> {
         adminService.deleteAccount(accountId, user)
-        return ResponseEntity.ok().success("Conta deletada com sucesso.")
+        return ResponseEntity.ok().success(MessageConstants.Success.ACCOUNT_DELETED)
     }
 }

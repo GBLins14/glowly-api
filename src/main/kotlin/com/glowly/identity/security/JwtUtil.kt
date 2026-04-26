@@ -31,7 +31,7 @@ class JwtUtil(
 
     fun validateToken(token: String): Boolean {
         return try {
-            Jwts.parser().verifyWith(key).build().parseSignedClaims(token)
+            getClaims(token)
             true
         } catch (_: Exception) {
             false
@@ -39,12 +39,13 @@ class JwtUtil(
     }
 
     fun getUsername(token: String): String {
-        val claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).payload
-        return claims.subject
+        return getClaims(token).subject
     }
 
     fun getTokenVersion(token: String): Int {
-        val claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).payload
-        return claims["tokenVersion"] as Int
+        return getClaims(token)["tokenVersion"] as Int
     }
+
+    private fun getClaims(token: String) =
+        Jwts.parser().verifyWith(key).build().parseSignedClaims(token).payload
 }

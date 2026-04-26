@@ -4,9 +4,11 @@ import com.glowly.identity.enums.AccountStatus
 import com.glowly.identity.exceptions.UnauthorizedException
 import com.glowly.identity.models.CustomUserDetails
 import com.glowly.identity.repositories.AccountRepository
+import com.glowly.identity.utils.MessageConstants
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.http.HttpHeaders
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
@@ -24,11 +26,11 @@ class JwtAuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val token = request.getHeader("Authorization")
+        val token = request.getHeader(HttpHeaders.AUTHORIZATION)
             ?.removePrefix("Bearer ")
             ?.trim()
 
-        if (token == null || !jwtUtil.validateToken(token)) {
+        if (token.isNullOrBlank() || !jwtUtil.validateToken(token)) {
             filterChain.doFilter(request, response)
             return
         }
@@ -43,20 +45,20 @@ class JwtAuthenticationFilter(
 
         val tokenVersion = jwtUtil.getTokenVersion(token)
         if (tokenVersion != user.tokenVersion) {
-            throw UnauthorizedException("Sessão expirada. Faça login novamente.")
+            throw UnauthorizedException(MessageConstants.Error.INVALID_CREDENTIALS)
         }
 
         if (user.accountStatus == AccountStatus.PENDING) {
-            throw UnauthorizedException("A sua conta ainda não foi aprovada, aguarde a liberação.")
+            throw UnauthorizedException(MessageConstants.Error.ACCOUNT_PENDING)
         }
 
         if (user.banned) {
             if (user.banExpiresAt == null) {
-                throw UnauthorizedException("Sua conta está permanentemente bloqueada.")
+                throw UnauthorizedException(MessageConstants.Error.ACCOUNT_BANNED_PERMANENT)
             }
 
             if (!user.isBanExpired()) {
-                throw UnauthorizedException("Conta temporariamente bloqueada. Tente mais tarde.")
+                throw UnauthorizedException(MessageConstants.Error.ACCOUNT_BANNED_TEMPORARY)
             }
 
             user.apply {
@@ -69,7 +71,7 @@ class JwtAuthenticationFilter(
         }
 
         if (user.store != null && !user.store!!.active) {
-            throw UnauthorizedException("A loja vinculada a esta conta se encontra desativada.")
+            throw UnauthorizedException("A loja vinculada a esta conta está desativada.")
         }
 
         val authorities = listOf(SimpleGrantedAuthority("ROLE_${user.role?.name?.uppercase()}"))

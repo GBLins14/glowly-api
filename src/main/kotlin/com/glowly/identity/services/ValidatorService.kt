@@ -12,8 +12,8 @@ class ValidatorService {
         return emailRegex.matches(email)
     }
 
-    fun cleanCpfOrCnpj(cpf: String): String {
-        return cpf.replace(Regex("[^0-9]"), "")
+    fun cleanCpfOrCnpj(cpfOrCnpj: String): String {
+        return cpfOrCnpj.replace(Regex("[^0-9]"), "")
     }
 
     fun isValidCpf(cpf: String): Boolean {

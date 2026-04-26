@@ -15,18 +15,20 @@ import com.glowly.identity.repositories.AccountRepository
 import com.glowly.identity.repositories.TokenRepository
 import com.glowly.identity.security.Hash
 import com.glowly.identity.security.JwtUtil
+import com.glowly.identity.utils.MessageConstants
 import com.glowly.identity.utils.checkDuplicate
 import com.glowly.identity.utils.generateToken
 import com.glowly.identity.utils.hashToken
 import com.glowly.stores.repositories.StoreRepository
-import java.util.concurrent.ConcurrentHashMap
-import jakarta.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class AuthService(
@@ -47,7 +49,7 @@ class AuthService(
     @Value($$"${app.sign.max-attempts}") private val MAX_ATTEMPTS: Int,
     @Value($$"${app.sign.lockout-minutes}") private val LOCKOUT_MINUTES: Long,
 ) {
-    private val logger = LoggerFactory.getLogger(AuthService::class.java)
+    private val log: Logger = LoggerFactory.getLogger(javaClass)
     private val dummyHash = bcrypt.encodePassword("dummyTimingAttackPrevention") ?: ""
     private val passwordResetAttempts = ConcurrentHashMap<String, Instant>()
 
@@ -57,27 +59,31 @@ class AuthService(
         val username = request.username.lowercase().trim()
 
         if (!validatorUtil.isValidCpf(cleanedCpf)) {
-            throw BadRequestException("É necessário inserir um número de CPF que seja válido.")
+            throw BadRequestException(MessageConstants.Error.INVALID_CPF)
         }
 
         if (request.fullName.length < MIN_FULLNAME_LENGTH) {
-            throw BadRequestException("É necessário inserir o seu nome completo.")
+            throw BadRequestException(MessageConstants.Error.INVALID_FULLNAME)
         }
 
         if (username.length !in MIN_USERNAME_LENGTH..MAX_USERNAME_LENGTH) {
-            throw BadRequestException("O nome de usuário deve conter no mínimo $MIN_USERNAME_LENGTH caracteres, e no máximo $MAX_USERNAME_LENGTH caracteres.")
+            throw BadRequestException(
+                MessageConstants.Error.INVALID_USERNAME_LENGTH.format(MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH)
+            )
         }
 
         if (!validatorUtil.isValidEmail(request.email)) {
-            throw BadRequestException("É necessário inserir um endereço de email que seja válido.")
+            throw BadRequestException(MessageConstants.Error.INVALID_EMAIL)
         }
 
         if (!validatorUtil.isValidPhone(request.phone)) {
-            throw BadRequestException("É necessário inserir um número de telefone que seja válido.")
+            throw BadRequestException(MessageConstants.Error.INVALID_PHONE)
         }
 
         if (request.password.length !in MIN_PASSWORD_LENGTH..MAX_PASSWORD_LENGTH) {
-            throw BadRequestException("A senha deve conter no mínimo $MIN_PASSWORD_LENGTH caracteres, e no máximo $MAX_PASSWORD_LENGTH caracteres.")
+            throw BadRequestException(
+                MessageConstants.Error.INVALID_PASSWORD_LENGTH.format(MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH)
+            )
         }
 
 //        if (!validatorUtil.isValidPassword(request.password)) {
@@ -90,40 +96,27 @@ class AuthService(
         val existingPhone = accountRepository.findByPhone(request.phone)
 
         if ((request.role == null) != (request.storeId == null)) {
-            throw BadRequestException(
-                "Os campos 'store' e 'role' devem ser informados juntos ou ambos omitidos."
-            )
+            throw BadRequestException(MessageConstants.Error.INVALID_STORE_ROLE)
         }
 
         val store = request.storeId?.let { storeId ->
             storeRepository.findById(storeId)
-                .orElseThrow {
-                    NotFoundException("A loja com o ID informado não existe.")
-                }
+                .orElseThrow { NotFoundException(MessageConstants.Error.STORE_NOT_FOUND) }
         }
 
-        checkDuplicate(existingCpf, "Já existe uma conta registrada com este número de CPF.")
-        checkDuplicate(existingUsername, "Já existe uma conta registrada com este nome de usuário.")
-        checkDuplicate(existingEmail, "Já existe uma conta registrada com este endereço de email.")
-        checkDuplicate(existingPhone, "Já existe uma conta registrada com este número de telefone.")
+        checkDuplicate(existingCpf, MessageConstants.Error.DUPLICATE_CPF)
+        checkDuplicate(existingUsername, MessageConstants.Error.DUPLICATE_USERNAME)
+        checkDuplicate(existingEmail, MessageConstants.Error.DUPLICATE_EMAIL)
+        checkDuplicate(existingPhone, MessageConstants.Error.DUPLICATE_PHONE)
 
         val (accountStatus, finalRole, messageReturn) = when (request.role) {
-            Role.USER -> Triple(
-                AccountStatus.APPROVED,
-                Role.USER,
-                "Conta registrada com sucesso."
-            )
+            Role.USER -> Triple(AccountStatus.APPROVED, Role.USER, MessageConstants.Success.ACCOUNT_REGISTERED)
             Role.ADMIN -> Triple(
                 AccountStatus.PENDING,
                 Role.ADMIN,
-                "Conta registrada com sucesso, aguarde a liberação de outro admin."
-            ) else -> {
-                Triple(
-                    AccountStatus.APPROVED,
-                    null,
-                    "Conta registrada com sucesso."
-                )
-            }
+                MessageConstants.Success.ACCOUNT_REGISTERED_PENDING
+            )
+            else -> Triple(AccountStatus.APPROVED, null, MessageConstants.Success.ACCOUNT_REGISTERED)
         }
 
         val user = User(
@@ -149,16 +142,16 @@ class AuthService(
 
         if (user == null) {
             bcrypt.checkPassword(request.password, dummyHash)
-            throw UnauthorizedException("Usuário ou senha incorretos.")
+            throw UnauthorizedException(MessageConstants.Error.INVALID_CREDENTIALS)
         }
 
         if (user.banned) {
             if (user.banExpiresAt == null) {
-                throw UnauthorizedException("Sua conta está permanentemente bloqueada.")
+                throw UnauthorizedException(MessageConstants.Error.ACCOUNT_BANNED_PERMANENT)
             }
 
             if (!user.isBanExpired()) {
-                throw UnauthorizedException("Conta temporariamente bloqueada. Tente novamente mais tarde.")
+                throw UnauthorizedException(MessageConstants.Error.ACCOUNT_BANNED_TEMPORARY)
             }
 
             user.apply {
@@ -181,15 +174,17 @@ class AuthService(
                 user.banExpiresAt = now.plus(LOCKOUT_MINUTES, ChronoUnit.MINUTES)
                 accountRepository.save(user)
 
-                throw UnauthorizedException("Conta bloqueada devido a tentativas excessivas.")
+                throw UnauthorizedException(
+                    MessageConstants.Error.ACCOUNT_LOCKED_ATTEMPTS.format(LOCKOUT_MINUTES)
+                )
             }
 
             accountRepository.save(user)
-            throw UnauthorizedException("Usuário ou senha incorretos.")
+            throw UnauthorizedException(MessageConstants.Error.INVALID_CREDENTIALS)
         }
 
         if (user.accountStatus == AccountStatus.PENDING) {
-            throw UnauthorizedException("A sua conta ainda não foi aprovada, aguarde a liberação.")
+            throw UnauthorizedException(MessageConstants.Error.ACCOUNT_PENDING)
         }
 
         user.failedLoginAttempts = 0
@@ -230,7 +225,7 @@ class AuthService(
         try {
             forgotPasswordService.send(email, user.username, link)
         } catch (e: Exception) {
-            logger.error("Falha ao enviar email de recuperação para $email", e)
+            log.error("Falha ao enviar email de recuperação para $email", e)
         }
     }
 
@@ -238,15 +233,17 @@ class AuthService(
     fun processResetPassword(token: String, newPassword: String) {
         val tokenHash = hashToken(token)
         val resetToken = tokenRepository.findByTokenHash(tokenHash)
-            ?: throw NotFoundException("Token inválido ou não encontrado.")
+            ?: throw NotFoundException(MessageConstants.Error.TOKEN_NOT_FOUND)
 
         if (resetToken.isExpired()) {
             tokenRepository.delete(resetToken)
-            throw UnauthorizedException("Este link expirou. Solicite uma nova recuperação.")
+            throw UnauthorizedException(MessageConstants.Error.TOKEN_EXPIRED)
         }
 
         if (newPassword.length !in MIN_PASSWORD_LENGTH..MAX_PASSWORD_LENGTH) {
-            throw BadRequestException("A senha deve conter no mínimo $MIN_PASSWORD_LENGTH caracteres, e no máximo $MAX_PASSWORD_LENGTH caracteres.")
+            throw BadRequestException(
+                MessageConstants.Error.INVALID_PASSWORD_LENGTH.format(MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH)
+            )
         }
 
 //        if (!validatorUtil.isValidPassword(newPassword)) {
@@ -263,6 +260,7 @@ class AuthService(
         SecurityContextHolder.clearContext()
     }
 
+    @Transactional(readOnly = true)
     fun getMe(user: User): UserResponse {
         return user.toResponseDTO()
     }

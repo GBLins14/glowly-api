@@ -7,6 +7,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.glowly.identity.security.CurrentUserArgumentResolver
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.method.HandlerTypePredicate
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 class AppConfig(
     private val currentUserArgumentResolver: CurrentUserArgumentResolver
 ) : WebMvcConfigurer {
+    @Primary
     @Bean
     fun objectMapper(): ObjectMapper {
         return ObjectMapper()

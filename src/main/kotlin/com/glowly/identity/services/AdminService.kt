@@ -11,8 +11,9 @@ import com.glowly.identity.exceptions.ConflictException
 import com.glowly.identity.exceptions.NotFoundException
 import com.glowly.identity.models.User
 import com.glowly.identity.repositories.AccountRepository
+import com.glowly.identity.utils.MessageConstants
 import com.glowly.identity.utils.validateHierarchy
-import jakarta.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -25,58 +26,61 @@ class AdminService(
     @Transactional
     fun approveAccount(accountId: Long) {
         val account = accountRepository.findByIdOrNull(accountId)
-            ?: throw NotFoundException("Conta não encontrada.")
+            ?: throw NotFoundException(MessageConstants.Error.ACCOUNT_NOT_FOUND)
 
         if (account.accountStatus == AccountStatus.APPROVED) {
-            throw ConflictException("Esta conta já está aprovada.")
+            throw ConflictException(MessageConstants.Error.ACCOUNT_ALREADY_APPROVED)
         }
 
         account.accountStatus = AccountStatus.APPROVED
         accountRepository.save(account)
     }
 
+    @Transactional(readOnly = true)
     fun getAllAccounts(): List<UserResponse> =
         accountRepository.findAll().map { it.toResponseDTO() }
 
+    @Transactional(readOnly = true)
     fun getPendingAccounts(): List<UserResponse> {
         val accounts = accountRepository.findByAccountStatus(AccountStatus.PENDING)
             ?: emptyList()
 
-        if (accounts.isEmpty()) throw NotFoundException("Nenhuma conta pendente encontrada.")
+        if (accounts.isEmpty()) throw NotFoundException(MessageConstants.Error.PENDING_ACCOUNTS_NOT_FOUND)
 
         return accounts.map { it.toResponseDTO() }
     }
 
+    @Transactional(readOnly = true)
     fun getAccountByLogin(login: String): UserResponse {
         val account = accountRepository.findByUsernameOrEmail(login, login)
-            ?: throw NotFoundException("Conta não encontrada.")
+            ?: throw NotFoundException(MessageConstants.Error.ACCOUNT_NOT_FOUND)
         return account.toResponseDTO()
     }
 
-    fun getAllRoles(): EnumEntries<Role> {
-        return Role.entries
-    }
+    @Transactional(readOnly = true)
+    fun getAllRoles(): EnumEntries<Role> = Role.entries
 
     @Transactional
     fun updateRole(request: SetRoleDto, adminAccount: User) {
         val targetAccount = accountRepository.findByIdOrNull(request.id)
-            ?: throw NotFoundException("Conta não encontrada.")
+            ?: throw NotFoundException(MessageConstants.Error.ACCOUNT_NOT_FOUND)
 
         validateHierarchy(adminAccount, targetAccount)
 
         if (targetAccount.role == request.role) {
-            throw ConflictException("A conta já está com este cargo.")
+            throw ConflictException(MessageConstants.Error.ROLE_ALREADY_ASSIGNED)
         }
 
         targetAccount.role = request.role
         accountRepository.save(targetAccount)
     }
 
+    @Transactional(readOnly = true)
     fun getBannedAccounts(): List<UserResponse> {
         val accounts = accountRepository.findByBannedIsTrue() ?: emptyList()
 
         if (accounts.isEmpty()) {
-            throw NotFoundException("Nenhuma conta banida encontrada.")
+            throw NotFoundException(MessageConstants.Error.BANNED_ACCOUNTS_NOT_FOUND)
         }
 
         return accounts.map { it.toResponseDTO() }
@@ -85,12 +89,12 @@ class AdminService(
     @Transactional
     fun banAccount(request: BanDto, user: User) {
         val targetAccount = accountRepository.findByIdOrNull(request.id)
-            ?: throw NotFoundException("Conta não encontrada.")
+            ?: throw NotFoundException(MessageConstants.Error.ACCOUNT_NOT_FOUND)
 
         validateHierarchy(user, targetAccount)
 
         if (targetAccount.banned) {
-            throw ConflictException("Esta conta já está bloqueada.")
+            throw ConflictException(MessageConstants.Error.ACCOUNT_ALREADY_BANNED)
         }
 
         val now = Instant.now()
@@ -108,10 +112,10 @@ class AdminService(
     @Transactional
     fun unbanAccount(accountId: Long) {
         val account = accountRepository.findByIdOrNull(accountId)
-            ?: throw NotFoundException("Conta não encontrada.")
+            ?: throw NotFoundException(MessageConstants.Error.ACCOUNT_NOT_FOUND)
 
         if (!account.banned) {
-            throw BadRequestException("A conta não está banida.")
+            throw BadRequestException(MessageConstants.Error.ACCOUNT_NOT_BANNED)
         }
 
         account.banned = false
@@ -123,7 +127,7 @@ class AdminService(
     @Transactional
     fun deleteAccount(accountId: Long, user: User) {
         val targetAccount = accountRepository.findByIdOrNull(accountId)
-            ?: throw NotFoundException("Conta não encontrada.")
+            ?: throw NotFoundException(MessageConstants.Error.ACCOUNT_NOT_FOUND)
 
         validateHierarchy(user, targetAccount)
 
