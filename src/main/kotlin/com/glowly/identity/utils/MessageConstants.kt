@@ -16,13 +16,26 @@ object MessageConstants {
     }
 
     object Error {
+        const val INVALID_LOGIN = "Informe um nome de usuário ou email válido."
         const val INVALID_CPF = "Informe um CPF válido."
         const val INVALID_EMAIL = "Informe um endereço de email válido."
         const val INVALID_PHONE = "Informe um número de telefone válido."
-        const val INVALID_PASSWORD_LENGTH = "A senha deve conter entre %d e %d caracteres."
-        const val INVALID_USERNAME_LENGTH = "O nome de usuário deve conter entre %d e %d caracteres."
+        const val INVALID_PASSWORD_LENGTH = "A senha deve conter entre 6 e 30 caracteres contendo apenas letras, números e símbolos."
+        const val INVALID_USERNAME_LENGTH = "O nome de usuário deve conter entre 4 e 20 caracteres."
+        const val INVALID_USERNAME_PATTERN = "Username pode conter apenas letras minusculas, números e _"
         const val INVALID_FULLNAME = "Informe o nome completo."
         const val INVALID_STORE_ROLE = "Os campos 'storeId' e 'role' devem ser informados juntos ou ambos omitidos."
+
+        const val INVALID_CNPJ = "Informe um CNPJ válido."
+        const val INVALID_STORE_NAME = "O nome da loja deve conter entre 4 e 50 caracteres."
+        const val INVALID_STORE_DESCRIPTION = "A descrição da loja deve conter no máximo 255 caracteres."
+        const val INVALID_STREET = "O nome da rua deve conter no máximo 50 caracteres."
+        const val INVALID_STORE_NUMBER = "O número da loja deve conter no máximo 10 caracteres."
+        const val INVALID_STORE_COMPLEMENT = "O complemento da loja deve conter no máximo 50 caracteres."
+        const val INVALID_STORE_CITY = "O nome da cidade deve conter no máximo 50 caracteres."
+        const val INVALID_STORE_STATE = "O nome do estado deve conter no máximo 50 caracteres."
+        const val INVALID_STORE_ZIP_CODE = "O CEP deve conter no máximo 10 caracteres."
+        const val INVALID_STORE_WEBSITE = "Informe um URL válido."
 
         const val STORE_NOT_FOUND = "A loja com o ID informado não existe."
         const val ACCOUNT_NOT_FOUND = "Conta não encontrada."

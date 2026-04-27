@@ -1,6 +1,5 @@
 package com.glowly.stores.services
 
-import com.glowly.identity.exceptions.BadRequestException
 import com.glowly.identity.services.ValidatorService
 import com.glowly.stores.dto.CreateStoreDto
 import org.springframework.transaction.annotation.Transactional
@@ -15,13 +14,6 @@ class StoreService(
 
     @Transactional
     fun createStore(request: CreateStoreDto): String {
-        if (!request.cnpj.isNullOrBlank()) {
-            val cleanedCnpj = validatorService.cleanCpfOrCnpj(request.cnpj)
-            if (cleanedCnpj.length != 14) {
-                throw BadRequestException("Insira um CNPJ válido.")
-            }
-        }
-        val username = request.name.lowercase().trim()
         return "Loja criada com sucesso!"
     }
 

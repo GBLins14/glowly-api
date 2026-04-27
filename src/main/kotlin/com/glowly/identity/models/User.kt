@@ -6,11 +6,21 @@ import com.glowly.identity.enums.Role
 import com.glowly.stores.models.Store
 import jakarta.persistence.*
 import org.hibernate.Hibernate
+import org.hibernate.annotations.CreationTimestamp
+import org.hibernate.annotations.UpdateTimestamp
 import java.time.Instant
 
 @Entity
-@Table(name = "users")
-data class User(
+@Table(
+    name = "users",
+    indexes = [
+        Index(name = "idx_user_store_id", columnList = "store_id"),
+        Index(name = "idx_user_email", columnList = "email"),
+        Index(name = "idx_user_username", columnList = "username")
+    ]
+)
+class User(
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
@@ -20,29 +30,31 @@ data class User(
     var store: Store? = null,
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 20)
     var role: Role? = null,
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 11)
     val cpf: String,
 
+    @Column(nullable = false, length = 120)
     var fullName: String,
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 20)
     var username: String,
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 254)
     var email: String,
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 20)
     var phone: String,
 
     @JsonIgnore
     @Column(nullable = false)
-    var hashedPassword: String?,
+    var hashedPassword: String,
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    var accountStatus: AccountStatus,
+    @Column(nullable = false, length = 20)
+    var accountStatus: AccountStatus = AccountStatus.PENDING,
 
     @Column(nullable = false)
     var banned: Boolean = false,
@@ -57,22 +69,88 @@ data class User(
     @Column(nullable = false)
     var tokenVersion: Int = 0,
 
-    @Column(nullable = false)
-    var createdAt: Instant = Instant.now(),
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    val createdAt: Instant? = null,
 
-    var updatedAt: Instant = Instant.now()
+    @UpdateTimestamp
+    @Column(nullable = false)
+    var updatedAt: Instant? = null,
+
+    @Version
+    var version: Long? = null
 ) {
+
     @PrePersist
     @PreUpdate
-    fun formatData() {
-        this.fullName = this.fullName.uppercase()
-        this.username = this.username.lowercase()
-        this.email = this.email.lowercase()
+    fun normalize() {
+        fullName = fullName.trim().uppercase()
+        username = username.trim().lowercase()
+        email = email.trim().lowercase()
+        phone = phone.trim()
+    }
+
+    fun assignStore(store: Store) {
+        this.store = store
+    }
+
+    fun removeStore() {
+        this.store = null
+    }
+
+    fun promote(role: Role) {
+        this.role = role
+    }
+
+    fun updateProfile(
+        fullName: String?,
+        username: String?,
+        email: String?,
+        phone: String?
+    ) {
+        fullName?.let { this.fullName = it }
+        username?.let { this.username = it }
+        email?.let { this.email = it }
+        phone?.let { this.phone = it }
+    }
+
+    fun changePassword(newHashedPassword: String) {
+        require(newHashedPassword.isNotBlank()) { "Senha inválida." }
+        hashedPassword = newHashedPassword
+        revokeSessions()
+    }
+
+    fun revokeSessions() {
+        tokenVersion++
+    }
+
+    fun registerFailedLogin() {
+        failedLoginAttempts++
+    }
+
+    fun resetFailedLogins() {
+        failedLoginAttempts = 0
+    }
+
+    fun banUntil(expiresAt: Instant?) {
+        banned = true
+        bannedAt = Instant.now()
+        banExpiresAt = expiresAt
+    }
+
+    fun unban() {
+        banned = false
+        bannedAt = null
+        banExpiresAt = null
+        resetFailedLogins()
     }
 
     fun isBanExpired(): Boolean {
-        if (banExpiresAt == null) return false
-        return Instant.now().isAfter(banExpiresAt)
+        return banExpiresAt?.let { Instant.now().isAfter(it) } ?: false
+    }
+
+    fun approve() {
+        accountStatus = AccountStatus.APPROVED
     }
 
     override fun equals(other: Any?): Boolean {
@@ -88,5 +166,3 @@ data class User(
         return "User(id=$id, username='$username', email='$email', role=$role)"
     }
 }
-
-

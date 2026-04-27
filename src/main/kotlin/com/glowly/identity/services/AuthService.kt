@@ -41,9 +41,6 @@ class AuthService(
     private val forgotPasswordService: ForgotPasswordService,
     @Value($$"${app.frontend-url}") private val FRONTEND_URL: String,
     @Value($$"${app.password-recovery.token-expiration-minutes}") private val TOKEN_EXPIRATION_MINUTES: Long,
-    @Value($$"${app.sign.min-fullname-length}") private val MIN_FULLNAME_LENGTH: Int,
-    @Value($$"${app.sign.min-username-length}") private val MIN_USERNAME_LENGTH: Int,
-    @Value($$"${app.sign.max-username-length}") private val MAX_USERNAME_LENGTH: Int,
     @Value($$"${app.sign.min-password-length}") private val MIN_PASSWORD_LENGTH: Int,
     @Value($$"${app.sign.max-password-length}") private val MAX_PASSWORD_LENGTH: Int,
     @Value($$"${app.sign.max-attempts}") private val MAX_ATTEMPTS: Int,
@@ -55,43 +52,8 @@ class AuthService(
 
     @Transactional
     fun register(request: SignUpDto): String {
-        val cleanedCpf = validatorUtil.cleanCpfOrCnpj(request.cpf)
-        val username = request.username.lowercase().trim()
-
-        if (!validatorUtil.isValidCpf(cleanedCpf)) {
-            throw BadRequestException(MessageConstants.Error.INVALID_CPF)
-        }
-
-        if (request.fullName.length < MIN_FULLNAME_LENGTH) {
-            throw BadRequestException(MessageConstants.Error.INVALID_FULLNAME)
-        }
-
-        if (username.length !in MIN_USERNAME_LENGTH..MAX_USERNAME_LENGTH) {
-            throw BadRequestException(
-                MessageConstants.Error.INVALID_USERNAME_LENGTH.format(MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH)
-            )
-        }
-
-        if (!validatorUtil.isValidEmail(request.email)) {
-            throw BadRequestException(MessageConstants.Error.INVALID_EMAIL)
-        }
-
-        if (!validatorUtil.isValidPhone(request.phone)) {
-            throw BadRequestException(MessageConstants.Error.INVALID_PHONE)
-        }
-
-        if (request.password.length !in MIN_PASSWORD_LENGTH..MAX_PASSWORD_LENGTH) {
-            throw BadRequestException(
-                MessageConstants.Error.INVALID_PASSWORD_LENGTH.format(MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH)
-            )
-        }
-
-//        if (!validatorUtil.isValidPassword(request.password)) {
-//            throw BadRequestException("A senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial.")
-//        }
-
-        val existingCpf = accountRepository.findByCpf(cleanedCpf)
-        val existingUsername = accountRepository.findByUsername(username)
+        val existingCpf = accountRepository.findByCpf(request.cpf)
+        val existingUsername = accountRepository.findByUsername(request.username)
         val existingEmail = accountRepository.findByEmail(request.email)
         val existingPhone = accountRepository.findByPhone(request.phone)
 
@@ -110,24 +72,32 @@ class AuthService(
         checkDuplicate(existingPhone, MessageConstants.Error.DUPLICATE_PHONE)
 
         val (accountStatus, finalRole, messageReturn) = when (request.role) {
-            Role.USER -> Triple(AccountStatus.APPROVED, Role.USER, MessageConstants.Success.ACCOUNT_REGISTERED)
+            Role.USER -> Triple(
+                AccountStatus.APPROVED,
+                Role.USER,
+                MessageConstants.Success.ACCOUNT_REGISTERED
+            )
             Role.ADMIN -> Triple(
                 AccountStatus.PENDING,
                 Role.ADMIN,
                 MessageConstants.Success.ACCOUNT_REGISTERED_PENDING
             )
-            else -> Triple(AccountStatus.APPROVED, null, MessageConstants.Success.ACCOUNT_REGISTERED)
+            else -> Triple(
+                AccountStatus.APPROVED,
+                null,
+                MessageConstants.Success.ACCOUNT_REGISTERED
+            )
         }
 
         val user = User(
             store = store,
             role = finalRole,
-            cpf = cleanedCpf,
+            cpf = request.cpf,
             fullName = request.fullName,
-            username = username,
+            username = request.username,
             email = request.email,
             phone = request.phone,
-            hashedPassword = bcrypt.encodePassword(request.password),
+            hashedPassword = bcrypt.encodePassword(request.password) ?: throw RuntimeException("Failed to encode password"),
             accountStatus = accountStatus
         )
 
@@ -197,8 +167,6 @@ class AuthService(
 
     @Transactional
     fun processForgotPassword(email: String) {
-        val email = email.lowercase().trim()
-
         val now = Instant.now()
         val lastAttempt = passwordResetAttempts[email]
         if (lastAttempt != null && now.isBefore(lastAttempt.plus(5, ChronoUnit.MINUTES))) {
@@ -240,19 +208,9 @@ class AuthService(
             throw UnauthorizedException(MessageConstants.Error.TOKEN_EXPIRED)
         }
 
-        if (newPassword.length !in MIN_PASSWORD_LENGTH..MAX_PASSWORD_LENGTH) {
-            throw BadRequestException(
-                MessageConstants.Error.INVALID_PASSWORD_LENGTH.format(MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH)
-            )
-        }
-
-//        if (!validatorUtil.isValidPassword(newPassword)) {
-//            throw BadRequestException("A senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial.")
-//        }
-
         val user = resetToken.user
 
-        user.hashedPassword = bcrypt.encodePassword(newPassword)
+        user.hashedPassword = bcrypt.encodePassword(newPassword) ?: throw RuntimeException("Failed to encode password")
         user.tokenVersion += 1
 
         accountRepository.save(user)

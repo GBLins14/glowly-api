@@ -1,20 +1,25 @@
 package com.glowly.identity.dto
 
+import com.glowly.identity.utils.MessageConstants
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 
 data class ForgotPasswordRequest(
-    @field:NotBlank(message = "O email é obrigatório.")
-    @field:Email(message = "Informe um endereço de email válido.")
+    @field:NotBlank(message = MessageConstants.Error.INVALID_EMAIL)
+    @field:Email(message = MessageConstants.Error.INVALID_EMAIL)
     val email: String
 )
 
 data class ResetPasswordRequest(
-    @field:NotBlank(message = "O token é obrigatório.")
+    @field:NotBlank(message = MessageConstants.Error.TOKEN_NOT_FOUND)
     val token: String,
 
-    @field:NotBlank(message = "A nova senha é obrigatória.")
-    @field:Size(min = 6, max = 30, message = "A senha deve conter entre 6 e 30 caracteres.")
+    @field:Pattern(
+        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@\$!%*?&])[A-Za-z\\d@\$!%*?&]{6,30}\$",
+        message = MessageConstants.Error.INVALID_PASSWORD_LENGTH
+    )
+    @field:NotBlank(message = MessageConstants.Error.INVALID_PASSWORD_LENGTH)
     val newPassword: String
 )
