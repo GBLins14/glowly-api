@@ -20,26 +20,26 @@ class AdminController(
     private val adminService: AdminService
 ) {
     @GetMapping("/accounts")
-    fun getAccounts(): ResponseEntity<List<UserResponse>> {
-        val accounts = adminService.getAllAccounts()
+    fun getAccounts(@AuthenticationPrincipal adminAccount: User): ResponseEntity<List<UserResponse>> {
+        val accounts = adminService.getAllAccounts(adminAccount)
         return ResponseEntity.ok(accounts)
     }
 
     @GetMapping("/accounts/pendants")
-    fun getPendantAccounts(): ResponseEntity<List<UserResponse>> {
-        val accounts = adminService.getPendingAccounts()
+    fun getPendantAccounts(@AuthenticationPrincipal adminAccount: User): ResponseEntity<List<UserResponse>> {
+        val accounts = adminService.getPendingAccounts(adminAccount)
         return ResponseEntity.ok(accounts)
     }
 
-    @PatchMapping("/accounts/approve/{accountId}")
-    fun approveAccount(@PathVariable accountId: Long): ResponseEntity<Any> {
-        adminService.approveAccount(accountId)
+    @PatchMapping("/accounts/approve/{targetAccountId}")
+    fun approveAccount(@AuthenticationPrincipal adminAccount: User, @PathVariable targetAccountId: Long): ResponseEntity<Any> {
+        adminService.approveAccount(adminAccount, targetAccountId)
         return ResponseEntity.ok().success(MessageConstants.Success.ACCOUNT_APPROVED)
     }
 
     @GetMapping("/accounts/{login}")
-    fun getAccount(@PathVariable login: String): ResponseEntity<UserResponse> {
-        val account = adminService.getAccountByLogin(login)
+    fun getAccount(@AuthenticationPrincipal adminAccount: User, @PathVariable login: String): ResponseEntity<UserResponse> {
+        val account = adminService.getAccountByLogin(adminAccount, login)
         return ResponseEntity.ok(account)
     }
 
@@ -50,32 +50,32 @@ class AdminController(
     }
 
     @PatchMapping("/accounts/role")
-    fun setRole(@Valid @RequestBody request: SetRoleDto, @AuthenticationPrincipal user: User): ResponseEntity<Any> {
-        adminService.updateRole(request, user)
+    fun setRole(@Valid @RequestBody request: SetRoleDto, @AuthenticationPrincipal adminAccount: User): ResponseEntity<Any> {
+        adminService.updateRole(request, adminAccount)
         return ResponseEntity.ok().success(MessageConstants.Success.ROLE_UPDATED)
     }
 
     @PatchMapping("/accounts/ban")
-    fun banAccount(@Valid @RequestBody request: BanDto, @AuthenticationPrincipal user: User): ResponseEntity<Any> {
-        adminService.banAccount(request, user)
+    fun banAccount(@Valid @RequestBody request: BanDto, @AuthenticationPrincipal adminAccount: User): ResponseEntity<Any> {
+        adminService.banAccount(request, adminAccount)
         return ResponseEntity.ok().success(MessageConstants.Success.ACCOUNT_BANNED)
     }
 
-    @PatchMapping("/accounts/unban/{accountId}")
-    fun unbanAccount(@PathVariable accountId: Long): ResponseEntity<Any> {
-        adminService.unbanAccount(accountId)
+    @PatchMapping("/accounts/unban/{targetAccountId}")
+    fun unbanAccount(@AuthenticationPrincipal adminAccount: User, @PathVariable targetAccountId: Long): ResponseEntity<Any> {
+        adminService.unbanAccount(adminAccount, targetAccountId)
         return ResponseEntity.ok().success(MessageConstants.Success.ACCOUNT_UNBANNED)
     }
 
     @GetMapping("/accounts/bans")
-    fun getBans(): ResponseEntity<List<UserResponse>> {
-        val accounts = adminService.getBannedAccounts()
+    fun getBans(@AuthenticationPrincipal adminAccount: User): ResponseEntity<List<UserResponse>> {
+        val accounts = adminService.getBannedAccounts(adminAccount)
         return ResponseEntity.ok(accounts)
     }
 
-    @DeleteMapping("/accounts/{accountId}")
-    fun delAccount(@PathVariable accountId: Long, @AuthenticationPrincipal user: User): ResponseEntity<Any> {
-        adminService.deleteAccount(accountId, user)
+    @DeleteMapping("/accounts/{targetAccountId}")
+    fun delAccount(@PathVariable targetAccountId: Long, @AuthenticationPrincipal adminAccount: User): ResponseEntity<Any> {
+        adminService.deleteAccount(targetAccountId, adminAccount)
         return ResponseEntity.ok().success(MessageConstants.Success.ACCOUNT_DELETED)
     }
 }

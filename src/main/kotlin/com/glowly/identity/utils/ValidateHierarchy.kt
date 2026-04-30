@@ -5,12 +5,14 @@ import com.glowly.identity.exceptions.ConflictException
 import com.glowly.identity.exceptions.ForbiddenException
 import com.glowly.identity.models.User
 
-fun validateHierarchy(user: User, targetAccount: User) {
-    if (targetAccount == user) {
+fun validateHierarchy(adminAccount: User, targetAccount: User) {
+    if (adminAccount.store!!.owner == adminAccount) return
+
+    if (targetAccount == adminAccount) {
         throw ConflictException(MessageConstants.Error.SELF_MANAGEMENT)
     }
 
-    if (user.role == Role.ADMIN && targetAccount.role == Role.ADMIN) {
+    if (adminAccount.role == Role.ADMIN && targetAccount.role == Role.ADMIN) {
         throw ForbiddenException(MessageConstants.Error.HIERARCHY_VIOLATION)
     }
 }

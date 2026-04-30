@@ -27,27 +27,29 @@ class AdminService(
     private val logger = Logger.getLogger(AdminService::class.java.name)
 
     @Transactional
-    fun approveAccount(accountId: Long) {
-        val account = accountRepository.findByIdOrNull(accountId)
+    fun approveAccount(adminAccount: User, targetAccountId: Long) {
+        val targetAccount = accountRepository.findByIdAndStore(targetAccountId, adminAccount.store!!)
             ?: throw NotFoundException(MessageConstants.Error.ACCOUNT_NOT_FOUND)
 
-        if (account.accountStatus == AccountStatus.APPROVED) {
+        validateHierarchy(adminAccount, targetAccount)
+
+        if (targetAccount.accountStatus == AccountStatus.APPROVED) {
             throw ConflictException(MessageConstants.Error.ACCOUNT_ALREADY_APPROVED)
         }
 
-        logger.info("Approving account: ${account.id}")
+        logger.info("Approving account: ${targetAccount.id}")
 
-        account.accountStatus = AccountStatus.APPROVED
-        accountRepository.save(account)
+        targetAccount.approve()
+        accountRepository.save(targetAccount)
     }
 
     @Transactional(readOnly = true)
-    fun getAllAccounts(): List<UserResponse> =
-        accountRepository.findAll().map { it.toResponseDTO() }
+    fun getAllAccounts(adminAccount: User): List<UserResponse> =
+        accountRepository.findByStore(adminAccount.store!!).map { it.toResponseDTO() }
 
     @Transactional(readOnly = true)
-    fun getPendingAccounts(): List<UserResponse> {
-        val accounts = accountRepository.findByAccountStatus(AccountStatus.PENDING)
+    fun getPendingAccounts(adminAccount: User): List<UserResponse> {
+        val accounts = accountRepository.findByAccountStatusAndStore(AccountStatus.PENDING, adminAccount.store!!)
             ?: emptyList()
 
         if (accounts.isEmpty()) throw NotFoundException(MessageConstants.Error.PENDING_ACCOUNTS_NOT_FOUND)
@@ -56,8 +58,8 @@ class AdminService(
     }
 
     @Transactional(readOnly = true)
-    fun getAccountByLogin(login: String): UserResponse {
-        val account = accountRepository.findByUsernameOrEmail(login, login)
+    fun getAccountByLogin(adminAccount: User, login: String): UserResponse {
+        val account = accountRepository.findByUsernameOrEmailAndStore(login, login, adminAccount.store!!)
             ?: throw NotFoundException(MessageConstants.Error.ACCOUNT_NOT_FOUND)
         return account.toResponseDTO()
     }
@@ -67,7 +69,7 @@ class AdminService(
 
     @Transactional
     fun updateRole(request: SetRoleDto, adminAccount: User) {
-        val targetAccount = accountRepository.findByIdOrNull(request.id)
+        val targetAccount = accountRepository.findByIdAndStore(request.id, adminAccount.store!!)
             ?: throw NotFoundException(MessageConstants.Error.ACCOUNT_NOT_FOUND)
 
         validateHierarchy(adminAccount, targetAccount)
@@ -78,13 +80,13 @@ class AdminService(
 
         logger.info("Updating role for account: ${targetAccount.id}")
 
-        targetAccount.role = request.role
+        targetAccount.promote(request.role)
         accountRepository.save(targetAccount)
     }
 
     @Transactional(readOnly = true)
-    fun getBannedAccounts(): List<UserResponse> {
-        val accounts = accountRepository.findByBannedIsTrue() ?: emptyList()
+    fun getBannedAccounts(adminAccount: User): List<UserResponse> {
+        val accounts = accountRepository.findByBannedIsTrueAndStore(adminAccount.store!!) ?: emptyList()
 
         if (accounts.isEmpty()) {
             throw NotFoundException(MessageConstants.Error.BANNED_ACCOUNTS_NOT_FOUND)
@@ -94,11 +96,11 @@ class AdminService(
     }
 
     @Transactional
-    fun banAccount(request: BanDto, user: User) {
-        val targetAccount = accountRepository.findByIdOrNull(request.id)
+    fun banAccount(request: BanDto, adminAccount: User) {
+        val targetAccount = accountRepository.findByIdAndStore(request.id, adminAccount.store!!)
             ?: throw NotFoundException(MessageConstants.Error.ACCOUNT_NOT_FOUND)
 
-        validateHierarchy(user, targetAccount)
+        validateHierarchy(adminAccount, targetAccount)
 
         if (targetAccount.banned) {
             throw ConflictException(MessageConstants.Error.ACCOUNT_ALREADY_BANNED)
@@ -108,39 +110,35 @@ class AdminService(
 
         val now = Instant.now()
 
-        targetAccount.apply {
-            banned = true
-            bannedAt = if (request.duration == null) null else now
-            banExpiresAt = if (request.duration == null) null else now.plus(request.duration, request.unit)
-            tokenVersion += 1
-        }
+        targetAccount.banUntil(request.duration, request.unit)
 
         accountRepository.save(targetAccount)
     }
 
     @Transactional
-    fun unbanAccount(accountId: Long) {
-        val account = accountRepository.findByIdOrNull(accountId)
+    fun unbanAccount(adminAccount: User, targetAccountId: Long) {
+        val targetAccount = accountRepository.findByIdAndStore(targetAccountId, adminAccount.store!!)
             ?: throw NotFoundException(MessageConstants.Error.ACCOUNT_NOT_FOUND)
 
-        if (!account.banned) {
+        validateHierarchy(adminAccount, targetAccount)
+
+        if (!targetAccount.banned) {
             throw BadRequestException(MessageConstants.Error.ACCOUNT_NOT_BANNED)
         }
 
-        logger.info("Unbanning account: ${account.id}")
+        logger.info("Unbanning account: ${targetAccount.id}")
 
-        account.banned = false
-        account.bannedAt = null
-        account.banExpiresAt = null
-        accountRepository.save(account)
+        targetAccount.unban()
+
+        accountRepository.save(targetAccount)
     }
 
     @Transactional
-    fun deleteAccount(accountId: Long, user: User) {
-        val targetAccount = accountRepository.findByIdOrNull(accountId)
+    fun deleteAccount(targetAccountId: Long, adminAccount: User) {
+        val targetAccount = accountRepository.findByIdAndStore(targetAccountId, adminAccount.store!!)
             ?: throw NotFoundException(MessageConstants.Error.ACCOUNT_NOT_FOUND)
 
-        validateHierarchy(user, targetAccount)
+        validateHierarchy(adminAccount, targetAccount)
 
         logger.info("Deleting account: ${targetAccount.id}")
 

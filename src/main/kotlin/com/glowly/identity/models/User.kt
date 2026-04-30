@@ -10,6 +10,7 @@ import org.hibernate.Hibernate
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 @Entity
 @Table(
@@ -131,10 +132,11 @@ class User(
         failedLoginAttempts = 0
     }
 
-    fun banUntil(expiresAt: Instant?) {
+    fun banUntil(duration: Long?, unit: ChronoUnit?) {
         banned = true
-        bannedAt = Instant.now()
-        banExpiresAt = expiresAt
+        bannedAt = if (duration == null) null else Instant.now()
+        banExpiresAt = if (duration == null) null else Instant.now().plus(duration, unit)
+        tokenVersion += 1
     }
 
     fun unban() {

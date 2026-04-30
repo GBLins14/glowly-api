@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration
     info = Info(
         title = "Glowly API",
         version = "1.0",
-        description = "Sistema de autenticação e gerenciamento de usuários."
+        description = "Glowly API, sistema de autenticação, gerenciamento de usuários, lojas e agendamentos de horários."
     ),
     servers = [
         Server(url = "/", description = "Default Server URL"),
