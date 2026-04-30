@@ -70,7 +70,7 @@ class JwtAuthenticationFilter(
         }
 
         if (user.store != null && !user.store!!.active) {
-            throw UnauthorizedException("A loja vinculada a esta conta está desativada.")
+            throw UnauthorizedException(MessageConstants.Error.STORE_INACTIVE)
         }
 
         val authorities = listOf(SimpleGrantedAuthority("ROLE_${user.role?.name?.uppercase()}"))

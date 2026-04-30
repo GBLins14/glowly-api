@@ -66,6 +66,8 @@ object MessageConstants {
         const val DUPLICATE_EMAIL = "Já existe uma conta vinculada a este email."
         const val DUPLICATE_PHONE = "Já existe uma conta vinculada a este telefone."
 
+        const val STORE_INACTIVE = "A loja vinculada está desativada."
+
         const val INVALID_CREDENTIALS = "Usuário ou senha incorretos."
         const val ACCOUNT_BANNED_PERMANENT = "Conta permanentemente bloqueada. Entre em contato com o suporte."
         const val ACCOUNT_BANNED_TEMPORARY = "Conta temporariamente bloqueada. Aguarde alguns minutos e tente novamente."

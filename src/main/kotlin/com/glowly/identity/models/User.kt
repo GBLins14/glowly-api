@@ -26,7 +26,7 @@ class User(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.REMOVE])
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")
     var store: Store? = null,
 

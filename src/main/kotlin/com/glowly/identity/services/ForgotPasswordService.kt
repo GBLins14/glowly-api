@@ -10,6 +10,8 @@ import org.springframework.web.client.RestClient
 @Service
 class ForgotPasswordService(
     @Value("\${resend.resend-api-key}") private val apiKey: String,
+    @Value("\${app.name}") private val APP_NAME: String,
+    @Value("\${resend.mail-domain}") private val MAIL_DOMAIN: String,
     @Value("\${app.password-recovery.token-expiration-minutes}") private val TOKEN_EXPIRATION_MINUTES: Long,
 ) {
     private val logger = LoggerFactory.getLogger(ForgotPasswordService::class.java)
@@ -53,7 +55,7 @@ class ForgotPasswordService(
                                         </table>
                                     </div>
                             
-                                    <h2 style="margin: 10px 0 0 0; color: #1a1a1a; font-size: 22px; letter-spacing: -0.5px;">LOBBY APP</h2>
+                                    <h2 style="margin: 10px 0 0 0; color: #1a1a1a; font-size: 22px; letter-spacing: -0.5px;">${APP_NAME}</h2>
                                 </td>
                             </tr>
     
@@ -99,7 +101,7 @@ class ForgotPasswordService(
                             <tr>
                                 <td align="center" style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #f0f0f0;">
                                     <p style="color: #a0aec0; font-size: 12px; margin: 0;">
-                                        © 2025 Lobby App - Segurança e Controle<br>
+                                        © 2025 ${APP_NAME} - Segurança e Controle<br>
                                         Enviado automaticamente pelo sistema.
                                     </p>
                                 </td>
@@ -114,9 +116,9 @@ class ForgotPasswordService(
     """.trimIndent()
 
         val emailRequest = mapOf(
-            "from" to "Lobby <nao-responda@mail.uselobby.com.br>",
+            "from" to "${APP_NAME} <nao-responda@${MAIL_DOMAIN}>",
             "to" to listOf(email),
-            "subject" to "Lobby: Recuperação de Senha",
+            "subject" to "${APP_NAME}: Recuperação de Senha",
             "html" to htmlContent
         )
 
