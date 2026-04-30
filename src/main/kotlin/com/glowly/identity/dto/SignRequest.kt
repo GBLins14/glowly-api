@@ -4,7 +4,6 @@ import com.glowly.identity.enums.Role
 import com.glowly.identity.utils.MessageConstants
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 import org.hibernate.validator.constraints.br.CPF
@@ -39,7 +38,7 @@ data class SignUpDto(
     val phone: String,
 
     @field:Pattern(
-        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@\$!%*?&])[A-Za-z\\d@\$!%*?&]{6,30}\$",
+        regexp = "^[A-Za-z0-9\\W_]{6,30}$",
         message = MessageConstants.Error.INVALID_PASSWORD_LENGTH
     )
     @field:NotBlank(message = MessageConstants.Error.INVALID_PASSWORD_LENGTH)
@@ -50,10 +49,6 @@ data class SignInDto(
     @field:NotBlank(message = MessageConstants.Error.INVALID_LOGIN)
     val login: String,
 
-    @field:Pattern(
-        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@\$!%*?&])[A-Za-z\\d@\$!%*?&]{6,30}\$",
-        message = MessageConstants.Error.INVALID_CREDENTIALS
-    )
     @field:NotBlank(message = MessageConstants.Error.INVALID_CREDENTIALS)
     val password: String,
 )

@@ -2,7 +2,6 @@ package com.glowly.identity.security
 
 import com.glowly.identity.enums.AccountStatus
 import com.glowly.identity.exceptions.UnauthorizedException
-import com.glowly.identity.models.CustomUserDetails
 import com.glowly.identity.repositories.AccountRepository
 import com.glowly.identity.utils.MessageConstants
 import jakarta.servlet.FilterChain
@@ -76,7 +75,7 @@ class JwtAuthenticationFilter(
 
         val authorities = listOf(SimpleGrantedAuthority("ROLE_${user.role?.name?.uppercase()}"))
         val authentication = UsernamePasswordAuthenticationToken(
-            CustomUserDetails(user),
+            user,
             null,
             authorities
         )

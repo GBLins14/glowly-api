@@ -13,9 +13,9 @@ import com.glowly.identity.models.User
 import com.glowly.identity.repositories.AccountRepository
 import com.glowly.identity.utils.MessageConstants
 import com.glowly.identity.utils.validateHierarchy
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import kotlin.enums.EnumEntries
 

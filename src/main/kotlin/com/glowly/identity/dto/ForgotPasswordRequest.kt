@@ -4,7 +4,6 @@ import com.glowly.identity.utils.MessageConstants
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
-import jakarta.validation.constraints.Size
 
 data class ForgotPasswordRequest(
     @field:NotBlank(message = MessageConstants.Error.INVALID_EMAIL)

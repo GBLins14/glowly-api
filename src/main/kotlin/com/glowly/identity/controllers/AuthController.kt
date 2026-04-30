@@ -1,6 +1,5 @@
 package com.glowly.identity.controllers
 
-import com.glowly.identity.annotations.CurrentUser
 import com.glowly.identity.dto.*
 import com.glowly.identity.extensions.success
 import com.glowly.identity.models.User
@@ -10,6 +9,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -45,13 +45,13 @@ class AuthController(
     }
 
     @PostMapping("/logout")
-    fun logout(@CurrentUser user: User): ResponseEntity<Any> {
+    fun logout(@AuthenticationPrincipal user: User): ResponseEntity<Any> {
         authService.logout(user)
         return ResponseEntity.status(HttpStatus.OK).success(MessageConstants.Success.LOGOUT)
     }
 
     @GetMapping("/me")
-    fun me(@CurrentUser user: User): ResponseEntity<UserResponse> {
+    fun me(@AuthenticationPrincipal user: User): ResponseEntity<UserResponse> {
         val me = authService.getMe(user)
         return ResponseEntity.ok(me)
     }

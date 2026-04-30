@@ -1,6 +1,5 @@
 package com.glowly.identity.controllers
 
-import com.glowly.identity.annotations.CurrentUser
 import com.glowly.identity.dto.BanDto
 import com.glowly.identity.dto.SetRoleDto
 import com.glowly.identity.dto.UserResponse
@@ -11,6 +10,7 @@ import com.glowly.identity.services.AdminService
 import com.glowly.identity.utils.MessageConstants
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import kotlin.enums.EnumEntries
 
@@ -50,13 +50,13 @@ class AdminController(
     }
 
     @PatchMapping("/accounts/role")
-    fun setRole(@Valid @RequestBody request: SetRoleDto, @CurrentUser user: User): ResponseEntity<Any> {
+    fun setRole(@Valid @RequestBody request: SetRoleDto, @AuthenticationPrincipal user: User): ResponseEntity<Any> {
         adminService.updateRole(request, user)
         return ResponseEntity.ok().success(MessageConstants.Success.ROLE_UPDATED)
     }
 
     @PatchMapping("/accounts/ban")
-    fun banAccount(@Valid @RequestBody request: BanDto, @CurrentUser user: User): ResponseEntity<Any> {
+    fun banAccount(@Valid @RequestBody request: BanDto, @AuthenticationPrincipal user: User): ResponseEntity<Any> {
         adminService.banAccount(request, user)
         return ResponseEntity.ok().success(MessageConstants.Success.ACCOUNT_BANNED)
     }
@@ -74,7 +74,7 @@ class AdminController(
     }
 
     @DeleteMapping("/accounts/{accountId}")
-    fun delAccount(@PathVariable accountId: Long, @CurrentUser user: User): ResponseEntity<Any> {
+    fun delAccount(@PathVariable accountId: Long, @AuthenticationPrincipal user: User): ResponseEntity<Any> {
         adminService.deleteAccount(accountId, user)
         return ResponseEntity.ok().success(MessageConstants.Success.ACCOUNT_DELETED)
     }

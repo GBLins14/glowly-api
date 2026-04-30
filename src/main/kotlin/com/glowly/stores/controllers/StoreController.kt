@@ -1,11 +1,14 @@
 package com.glowly.stores.controllers
 
 import com.glowly.identity.extensions.success
+import com.glowly.identity.models.User
 import com.glowly.stores.dto.CreateStoreDto
+import com.glowly.stores.dto.StoreResponse
 import com.glowly.stores.services.StoreService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -14,26 +17,26 @@ class StoreController(
     private val storeService: StoreService
 ) {
     @PostMapping("/create")
-    fun createStore(@Valid @RequestBody request: CreateStoreDto): ResponseEntity<Any> {
-        val messageReturn = storeService.createStore(request)
+    fun createStore(@Valid @RequestBody request: CreateStoreDto, @AuthenticationPrincipal user: User): ResponseEntity<Any> {
+        val messageReturn = storeService.createStore(request, user)
         return ResponseEntity.status(HttpStatus.OK).success(messageReturn)
     }
 
     @PutMapping("/update")
-    fun updateStore(@Valid @RequestBody request: CreateStoreDto): ResponseEntity<Any> {
-        val messageReturn = storeService.updateStore(request)
+    fun updateStore(@Valid @RequestBody request: CreateStoreDto, @AuthenticationPrincipal user: User): ResponseEntity<Any> {
+        val messageReturn = storeService.updateStore(request, user)
         return ResponseEntity.status(HttpStatus.OK).success(messageReturn)
     }
 
     @GetMapping("/get")
-    fun getStore(@Valid @RequestBody request: CreateStoreDto): ResponseEntity<Any> {
-        val messageReturn = storeService.getStore(request)
-        return ResponseEntity.status(HttpStatus.OK).success(messageReturn)
+    fun getStore(@AuthenticationPrincipal user: User): ResponseEntity<StoreResponse> {
+        val store = storeService.getStore(user)
+        return ResponseEntity.ok(store)
     }
 
     @DeleteMapping("/delete")
-    fun deleteStore(@Valid @RequestBody request: CreateStoreDto): ResponseEntity<Any> {
-        val messageReturn = storeService.deleteStore(request)
+    fun deleteStore(@AuthenticationPrincipal user: User): ResponseEntity<Any> {
+        val messageReturn = storeService.deleteStore(user)
         return ResponseEntity.status(HttpStatus.OK).success(messageReturn)
     }
 }

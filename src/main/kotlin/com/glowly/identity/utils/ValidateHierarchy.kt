@@ -4,7 +4,6 @@ import com.glowly.identity.enums.Role
 import com.glowly.identity.exceptions.ConflictException
 import com.glowly.identity.exceptions.ForbiddenException
 import com.glowly.identity.models.User
-import com.glowly.identity.utils.MessageConstants
 
 fun validateHierarchy(user: User, targetAccount: User) {
     if (targetAccount == user) {

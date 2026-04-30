@@ -14,13 +14,12 @@ import java.time.LocalDateTime
     ]
 )
 class Store(
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "owner_id", nullable = false)
+    @JoinColumn(name = "owner_id", nullable = false, unique = true)
     val owner: User,
 
     @Column(name = "cnpj", unique = true, length = 14)
@@ -76,6 +75,12 @@ class Store(
     @Version
     var version: Long? = null
 ) {
+
+    @PrePersist
+    @PreUpdate
+    private fun cleanCnpj() {
+        cnpj = cnpj?.replace(Regex("[^0-9]"), "")
+    }
 
     fun activate() {
         require(!active) { "Store já está ativa." }

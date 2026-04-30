@@ -34,7 +34,7 @@ class User(
     var role: Role? = null,
 
     @Column(nullable = false, unique = true, length = 11)
-    val cpf: String,
+    var cpf: String,
 
     @Column(nullable = false, length = 120)
     var fullName: String,
@@ -88,10 +88,12 @@ class User(
         username = username.trim().lowercase()
         email = email.trim().lowercase()
         phone = phone.trim()
+        cpf = cpf.replace(Regex("[^0-9]"), "")
     }
 
-    fun assignStore(store: Store) {
+    fun assignStore(store: Store, role: Role) {
         this.store = store
+        this.role = role
     }
 
     fun removeStore() {

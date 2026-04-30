@@ -20,29 +20,26 @@ import com.glowly.identity.utils.checkDuplicate
 import com.glowly.identity.utils.generateToken
 import com.glowly.identity.utils.hashToken
 import com.glowly.stores.repositories.StoreRepository
-import org.springframework.transaction.annotation.Transactional
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class AuthService(
-    private val accountRepository: AccountRepository,
     private val tokenRepository: TokenRepository,
+    private val accountRepository: AccountRepository,
     private val storeRepository: StoreRepository,
     private val jwtUtil: JwtUtil,
     private val bcrypt: Hash,
-    private val validatorUtil: ValidatorService,
     private val forgotPasswordService: ForgotPasswordService,
     @Value($$"${app.frontend-url}") private val FRONTEND_URL: String,
     @Value($$"${app.password-recovery.token-expiration-minutes}") private val TOKEN_EXPIRATION_MINUTES: Long,
-    @Value($$"${app.sign.min-password-length}") private val MIN_PASSWORD_LENGTH: Int,
-    @Value($$"${app.sign.max-password-length}") private val MAX_PASSWORD_LENGTH: Int,
     @Value($$"${app.sign.max-attempts}") private val MAX_ATTEMPTS: Int,
     @Value($$"${app.sign.lockout-minutes}") private val LOCKOUT_MINUTES: Long,
 ) {
@@ -52,7 +49,8 @@ class AuthService(
 
     @Transactional
     fun register(request: SignUpDto): String {
-        val existingCpf = accountRepository.findByCpf(request.cpf)
+        val cpf = request.cpf.replace(Regex("[^0-9]"), "")
+        val existingCpf = accountRepository.findByCpf(cpf)
         val existingUsername = accountRepository.findByUsername(request.username)
         val existingEmail = accountRepository.findByEmail(request.email)
         val existingPhone = accountRepository.findByPhone(request.phone)
@@ -63,7 +61,7 @@ class AuthService(
 
         val store = request.storeId?.let { storeId ->
             storeRepository.findById(storeId)
-                .orElseThrow { NotFoundException(MessageConstants.Error.STORE_NOT_FOUND) }
+                .orElseThrow { NotFoundException(MessageConstants.Error.STORE_NOT_FOUND_ID) }
         }
 
         checkDuplicate(existingCpf, MessageConstants.Error.DUPLICATE_CPF)
@@ -92,7 +90,7 @@ class AuthService(
         val user = User(
             store = store,
             role = finalRole,
-            cpf = request.cpf,
+            cpf = cpf,
             fullName = request.fullName,
             username = request.username,
             email = request.email,

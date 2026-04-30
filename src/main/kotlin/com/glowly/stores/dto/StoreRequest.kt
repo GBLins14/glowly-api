@@ -52,7 +52,7 @@ data class CreateStoreDto(
     val phone: String,
 
     @field:Size(max = 100, message = MessageConstants.Error.INVALID_STORE_WEBSITE)
-    @field:URL
+    @field:URL(message = MessageConstants.Error.INVALID_STORE_WEBSITE)
     val website: String? = null
 )
 

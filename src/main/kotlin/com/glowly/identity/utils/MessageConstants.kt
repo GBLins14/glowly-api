@@ -13,10 +13,17 @@ object MessageConstants {
         const val ACCOUNT_UNBANNED = "Conta desbloqueada com sucesso."
         const val ACCOUNT_DELETED = "Conta removida com sucesso."
         const val PASSWORD_RECOVERY_SENT = "Se o e-mail estiver cadastrado, você receberá um link de recuperação."
+
+        const val STORE_CREATED = "Loja criada com sucesso."
+        const val STORE_UPDATED = "Loja atualizada com sucesso."
+        const val STORE_OBTAINED = "Loja obtida com sucesso."
+        const val STORE_DELETED = "Loja removida com sucesso."
     }
 
     object Error {
+        const val INVALID_ID = "Informe um ID válido."
         const val INVALID_LOGIN = "Informe um nome de usuário ou email válido."
+        const val INVALID_ROLE = "Informe um cargo válido."
         const val INVALID_CPF = "Informe um CPF válido."
         const val INVALID_EMAIL = "Informe um endereço de email válido."
         const val INVALID_PHONE = "Informe um número de telefone válido."
@@ -24,10 +31,10 @@ object MessageConstants {
         const val INVALID_USERNAME_LENGTH = "O nome de usuário deve conter entre 4 e 20 caracteres."
         const val INVALID_USERNAME_PATTERN = "Username pode conter apenas letras minusculas, números e _"
         const val INVALID_FULLNAME = "Informe o nome completo."
-        const val INVALID_STORE_ROLE = "Os campos 'storeId' e 'role' devem ser informados juntos ou ambos omitidos."
 
         const val INVALID_CNPJ = "Informe um CNPJ válido."
         const val INVALID_STORE_NAME = "O nome da loja deve conter entre 4 e 50 caracteres."
+        const val INVALID_STORE_ROLE = "Os campos 'storeId' e 'role' devem ser informados juntos ou ambos omitidos."
         const val INVALID_STORE_DESCRIPTION = "A descrição da loja deve conter no máximo 255 caracteres."
         const val INVALID_STREET = "O nome da rua deve conter no máximo 50 caracteres."
         const val INVALID_STORE_NUMBER = "O número da loja deve conter no máximo 10 caracteres."
@@ -37,7 +44,14 @@ object MessageConstants {
         const val INVALID_STORE_ZIP_CODE = "O CEP deve conter no máximo 10 caracteres."
         const val INVALID_STORE_WEBSITE = "Informe um URL válido."
 
-        const val STORE_NOT_FOUND = "A loja com o ID informado não existe."
+        const val INVALID_STORE_OWNER_ASSIGNED = "Já existe uma loja vinculada a este usuário."
+        const val INVALID_STORE_CNPJ_ASSIGNED = "Já existe uma loja vinculada a este CNPJ."
+        const val INVALID_STORE_NAME_ASSIGNED = "Já existe uma loja vinculada a este nome."
+        const val INVALID_STORE_EMAIL_ASSIGNED = "Já existe uma loja vinculada a este email."
+        const val INVALID_STORE_PHONE_ASSIGNED = "Já existe uma loja vinculada a este telefone."
+
+        const val STORE_NOT_FOUND_USER = "Nenhuma loja vinculada a este usuário foi encontrada."
+        const val STORE_NOT_FOUND_ID = "A loja com o ID informado não existe."
         const val ACCOUNT_NOT_FOUND = "Conta não encontrada."
         const val TOKEN_NOT_FOUND = "Link de recuperação inválido ou não encontrado."
         const val PENDING_ACCOUNTS_NOT_FOUND = "Não há contas pendentes de aprovação."
