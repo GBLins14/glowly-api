@@ -1,6 +1,7 @@
 package com.glowly.stores.models
 
 import com.glowly.identity.models.User
+import jakarta.persistence.CascadeType
 import jakarta.persistence.*
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
@@ -18,7 +19,7 @@ class Store(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = [CascadeType.PERSIST])
     @JoinColumn(name = "owner_id", nullable = false, unique = true)
     val owner: User,
 

@@ -17,12 +17,15 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
+import java.util.logging.Logger
 import kotlin.enums.EnumEntries
 
 @Service
 class AdminService(
     private val accountRepository: AccountRepository
 ) {
+    private val logger = Logger.getLogger(AdminService::class.java.name)
+
     @Transactional
     fun approveAccount(accountId: Long) {
         val account = accountRepository.findByIdOrNull(accountId)
@@ -31,6 +34,8 @@ class AdminService(
         if (account.accountStatus == AccountStatus.APPROVED) {
             throw ConflictException(MessageConstants.Error.ACCOUNT_ALREADY_APPROVED)
         }
+
+        logger.info("Approving account: ${account.id}")
 
         account.accountStatus = AccountStatus.APPROVED
         accountRepository.save(account)
@@ -71,6 +76,8 @@ class AdminService(
             throw ConflictException(MessageConstants.Error.ROLE_ALREADY_ASSIGNED)
         }
 
+        logger.info("Updating role for account: ${targetAccount.id}")
+
         targetAccount.role = request.role
         accountRepository.save(targetAccount)
     }
@@ -97,6 +104,8 @@ class AdminService(
             throw ConflictException(MessageConstants.Error.ACCOUNT_ALREADY_BANNED)
         }
 
+        logger.info("Banning account: ${targetAccount.id}")
+
         val now = Instant.now()
 
         targetAccount.apply {
@@ -118,6 +127,8 @@ class AdminService(
             throw BadRequestException(MessageConstants.Error.ACCOUNT_NOT_BANNED)
         }
 
+        logger.info("Unbanning account: ${account.id}")
+
         account.banned = false
         account.bannedAt = null
         account.banExpiresAt = null
@@ -130,6 +141,8 @@ class AdminService(
             ?: throw NotFoundException(MessageConstants.Error.ACCOUNT_NOT_FOUND)
 
         validateHierarchy(user, targetAccount)
+
+        logger.info("Deleting account: ${targetAccount.id}")
 
         accountRepository.delete(targetAccount)
     }

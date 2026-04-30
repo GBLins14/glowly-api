@@ -2,6 +2,7 @@ package com.glowly.identity.repositories
 
 import com.glowly.identity.enums.AccountStatus
 import com.glowly.identity.models.User
+import com.glowly.stores.models.Store
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
@@ -14,4 +15,5 @@ interface AccountRepository : JpaRepository<User, Long> {
     fun findByPhone(phone: String): User?
     fun findByAccountStatus(accountStatus: AccountStatus): List<User>?
     fun findByBannedIsTrue(): List<User>?
+    fun findByStore(store: Store): List<User>
 }

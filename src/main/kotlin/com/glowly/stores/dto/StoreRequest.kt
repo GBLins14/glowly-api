@@ -56,7 +56,7 @@ data class CreateStoreDto(
     val website: String? = null
 )
 
-data class UpdateStoreDataDto(
+data class UpdateStoreDto(
     val name: String? = null,
     val description: String? = null,
     val street: String? = null,

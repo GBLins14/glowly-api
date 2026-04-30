@@ -43,7 +43,7 @@ class AuthService(
     @Value($$"${app.sign.max-attempts}") private val MAX_ATTEMPTS: Int,
     @Value($$"${app.sign.lockout-minutes}") private val LOCKOUT_MINUTES: Long,
 ) {
-    private val log: Logger = LoggerFactory.getLogger(javaClass)
+    private val logger = LoggerFactory.getLogger(AuthService::class.java)
     private val dummyHash = bcrypt.encodePassword("dummyTimingAttackPrevention") ?: ""
     private val passwordResetAttempts = ConcurrentHashMap<String, Instant>()
 
@@ -99,6 +99,8 @@ class AuthService(
             accountStatus = accountStatus
         )
 
+        logger.info("Creating user: ${user.id}")
+
         accountRepository.save(user)
         return messageReturn
     }
@@ -128,6 +130,7 @@ class AuthService(
                 banExpiresAt = null
                 failedLoginAttempts = 0
             }
+
             accountRepository.save(user)
         }
 
@@ -160,6 +163,8 @@ class AuthService(
 
         val token = jwtUtil.generateToken(user.username, user.role, user.tokenVersion)
 
+        logger.info("Logging in account: ${user.id}")
+
         return token
     }
 
@@ -191,7 +196,7 @@ class AuthService(
         try {
             forgotPasswordService.send(email, user.username, link)
         } catch (e: Exception) {
-            log.error("Falha ao enviar email de recuperação para $email", e)
+            logger.error("Falha ao enviar email de recuperação para $email", e)
         }
     }
 
@@ -210,6 +215,8 @@ class AuthService(
 
         user.hashedPassword = bcrypt.encodePassword(newPassword) ?: throw RuntimeException("Failed to encode password")
         user.tokenVersion += 1
+
+        logger.info("Password reset for user: ${user.id}")
 
         accountRepository.save(user)
         tokenRepository.delete(resetToken)

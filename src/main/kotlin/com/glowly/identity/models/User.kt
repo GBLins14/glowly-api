@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.glowly.identity.enums.AccountStatus
 import com.glowly.identity.enums.Role
 import com.glowly.stores.models.Store
+import jakarta.persistence.CascadeType
 import jakarta.persistence.*
 import org.hibernate.Hibernate
 import org.hibernate.annotations.CreationTimestamp
@@ -25,7 +26,7 @@ class User(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.REMOVE])
     @JoinColumn(name = "store_id")
     var store: Store? = null,
 
@@ -94,10 +95,6 @@ class User(
     fun assignStore(store: Store, role: Role) {
         this.store = store
         this.role = role
-    }
-
-    fun removeStore() {
-        this.store = null
     }
 
     fun promote(role: Role) {

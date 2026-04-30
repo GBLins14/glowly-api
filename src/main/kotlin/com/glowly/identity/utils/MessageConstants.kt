@@ -76,5 +76,7 @@ object MessageConstants {
 
         const val SELF_MANAGEMENT = "Não é possível gerenciar a própria conta enquanto autenticado."
         const val HIERARCHY_VIOLATION = "Você não possui permissão para gerenciar um usuário com cargo igual ou superior ao seu."
+
+        const val UNAUTHORIZED = "Você não possui permissão para acessar este recurso."
     }
 }
